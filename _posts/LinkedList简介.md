@@ -96,7 +96,7 @@ public int size() {
 public boolean add(E e) {}
 ```
 
-## remove(Object o)\removeFirstOccurrence(Object o) 移除第一个o
+## remove(Object o)/removeFirstOccurrence(Object o) 移除第一个o
 
 ```
 public boolean remove(Object o) {}
