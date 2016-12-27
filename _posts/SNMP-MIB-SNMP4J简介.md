@@ -7,6 +7,8 @@ tags: SNMP
 
 SNMP全称Simple Network Management Protocol，简单网络管理协议。是TCP/IP协议的一部分，属于应用层协议。SNMP协议主要用来解决网络设备的管理，大多数的网络管理系统都是基于SNMP协议。通过该协议可以实现在被管理的设备上获取各种参数，还可以设置修改这些参数。
 
+<!--more-->
+
 ## SNMP系统的组成
 一般SNMP系统组成大致有4个部分：
 
