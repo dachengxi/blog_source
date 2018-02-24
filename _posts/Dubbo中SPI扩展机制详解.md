@@ -1,5 +1,5 @@
 ---
-title: Dubbo中SPI扩展机制解析
+title: Dubbo中SPI扩展机制详解
 date: 2017-02-18 23:13:34
 categories: 
 	- dubbo
@@ -9,120 +9,174 @@ tags:
 	- dubbo源码
 ---
 
-dubbo的SPI机制类似与Java的SPI，Java的SPI会一次性的实例化所有扩展点的实现，有点显得浪费资源。
-
-- dubbo的扩展机制可以方便的获取某一个想要的扩展实现，每个实现都有自己的name，可以通过name找到具体的实现。
-- 每个扩展点都有一个@Adaptive实例，用来注入到依赖这个扩展点的某些类中，运行时通过url参数去动态判断最终选择哪个Extension实例用。
-- dubbo的SPI扩展机制增加了对扩展点自动装配（类似IOC）和自动包装（类似AOP）的支持。
-- 标注了@Activate的扩展点实现类，可以通过getActivateExtension方法获取，可以根据条件加载一些自动激活的扩展点。
-
+前面我们了解过了Java的SPI扩展机制，对于Java扩展机制的原理以及优缺点也有了大概的了解，这里继续深入一下Dubbo的扩展点加载机制。
 <!--more-->
+# Dubbo扩展点加载的功能
+Dubbo的扩展点加载机制类似于Java的SPI，我们知道Java的SPI在使用的时候，只能通过遍历来进行实现的查找和实例化，有可能会一次性把所有的实现都实例化，这样会造成有些不使用的扩展实现也会被实例化，这就会造成一定的资源浪费。有关Dubbo的改进，参照文档上的说明：
 
-## 扩展点自动装配（IOC）功能：
+- JDK标准的SPI会一次性实例化扩展点所有实现，如果有扩展实现初始化很耗时，但如果没用上也加载，会很浪费资源。
+- 如果扩展点加载失败，连扩展点的名称都拿不到了。比如：JDK标准的ScriptEngine，通过getName();获取脚本类型的名称，但如果RubyScriptEngine因为所依赖的jruby.jar不存在，导致RubyScriptEngine类加载失败，这个失败原因被吃掉了，和ruby对应不起来，当用户执行ruby脚本时，会报不支持ruby，而不是真正失败的原因。
+- 增加了对扩展点IoC和AOP的支持，一个扩展点可以直接setter注入其它扩展点。
+
+关于第一点，通过和Java的SPI对比，就能明白；第二点还未做测试，不太清楚其中的缘由；第三点对于IOC和AOP的支持下面简单介绍下。
+
+## 扩展点自动装配功能（IOC）
+就是当加载一个扩展点时，会自动的注入这个扩展点所依赖的**其他扩展点**，如果描述不清楚的话，可以看下下面的例子：
 
 ```
 接口A，实现类A1，A2
 接口B，实现类B1，B2
-
-实现类A1含有setB()方法，就会自动的注入一个B的实现类，但是不是注入B1和B2，而是注入一个动态生成的B的实现类B$Adpative，该实现能够根据参数的不同，自动选择B1或者B2来完成相应功能。
-
 ```
+其中实现类A1含有setB()方法，当通过扩展机制加载A的实现的时候，会自动的注入一个B的实现类，但是，此时不是注入B1，也不是注入B2，而是注入一个自适应的B的实现类：`B$Adpative`，该实现类是动态生成的，能够根据参数的不同，自动选择B1或者B2来进行调用。
 
-## 扩展点自动包装（AOP）功能：
-
-其实是对扩展点采用装饰器模式进行增强。
-
-```
-接口A还有另外一个实现者：AWrapper1，此实现者有如下构造器：
-private A a;
-AWrapper1(A a){
-  this.a = a;
-}
-```
-
-当我们再获取接口A的实现类的时候，就已经被AWrapper1包装过了，我们得到的就是包装过得类。
-
-## 定义
-
-### `@SPI`注解
-被此注解标记的接口，就是可扩展的接口。
-
-### `@Adaptive`注解
-`@Adaptive`有两种注解方式：一种是注解在类上，一种是注解在方法上。
-
-#### 注解在类上
-注解在类上，而且是注解在实现类上，目前dubbo只有AdaptiveCompiler和AdaptiveExtensionFactory类上标注了此注解，这是些特殊的类，ExtensionLoader需要依赖他们工作，所以得使用此方式。
-
-#### 注解在方法上
-注解在接口的方法上，除了上面两个类之外，所有的都是注解在方法上。ExtensionLoader根据接口定义动态的生成适配器代码，并实例化这个生成的动态类。被Adaptive注解的方法会生成具体的方法实现。没有注解的方法生成的实现都是抛不支持的操作异常UnsupportedOperationException。被注解的方法在生成的动态类中，会根据url里的参数信息，来决定实际调用哪个扩展。
-
-比如说这段代码：
-
-```
-private static final Protocol refprotocol = ExtensionLoader.getExtensionLoader(Protocol.class).getAdaptiveExtension();
-```
-
-当上面代码执行的时候，我们其实还不知道要真正使用的Protocol是什么，可能是具体的实现DubboProtocol，也可能是其他的具体实现的Protocol，那么这时候refprotocol到底是什么呢？refprotocol其实是在调用getAdaptiveExtension()方法时候，自动生成的一个类，代码如下：
+## 扩展点自适应
+上面我们说，在自动装配的时候，并不是注入一个真正的实现，而是注入一个自适应的扩展点实现，其实就是动态的生成的代码，也就是手动拼装的代码，这段代码里会根据SPI上配置的信息来加入对于具体实现的选择功能。生成的代码类似于下面的，代码做了一下精简，把包都去掉了：
 
 ```
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
-public class Protocol$Adpative implements com.alibaba.dubbo.rpc.Protocol {
-  public com.alibaba.dubbo.rpc.Invoker refer(java.lang.Class arg0, com.alibaba.dubbo.common.URL arg1) throws java.lang.Class {
+public class Protocol$Adpative implements Protocol {
+  public Invoker refer(Class arg0, URL arg1) throws Class {
     if (arg1 == null) throw new IllegalArgumentException("url == null");
 
-    com.alibaba.dubbo.common.URL url = arg1;
+    URL url = arg1;
     String extName = ( url.getProtocol() == null ? "dubbo" : url.getProtocol() );
 
-    if(extName == null) throw new IllegalStateException("Fail to get extension(com.alibaba.dubbo.rpc.Protocol) name from url(" + url.toString() + ") use keys([protocol])");
+    if(extName == null) throw new IllegalStateException("Fail to get extension(Protocol) name from url(" + url.toString() + ") use keys([protocol])");
     
-    com.alibaba.dubbo.rpc.Protocol extension = (com.alibaba.dubbo.rpc.Protocol)ExtensionLoader.getExtensionLoader(com.alibaba.dubbo.rpc.Protocol.class).getExtension(extName);
+    Protocol extension = (Protocol)ExtensionLoader.getExtensionLoader(Protocol.class).getExtension(extName);
     
     return extension.refer(arg0, arg1);
   }
   
-  public com.alibaba.dubbo.rpc.Exporter export(com.alibaba.dubbo.rpc.Invoker arg0) throws com.alibaba.dubbo.rpc.Invoker {
-    if (arg0 == null) throw new IllegalArgumentException("com.alibaba.dubbo.rpc.Invoker argument == null");
+  public Exporter export(Invoker arg0) throws Invoker {
+    if (arg0 == null) throw new IllegalArgumentException("Invoker argument == null");
     
-    if (arg0.getUrl() == null) throw new IllegalArgumentException("com.alibaba.dubbo.rpc.Invoker argument getUrl() == null");com.alibaba.dubbo.common.URL url = arg0.getUrl();
-    
+    if (arg0.getUrl() == null) throw new IllegalArgumentException("Invoker argument getUrl() == null");URL url = arg0.getUrl();
+    //这里会根据url中的信息获取具体的实现类名
     String extName = ( url.getProtocol() == null ? "dubbo" : url.getProtocol() );
     
-    if(extName == null) throw new IllegalStateException("Fail to get extension(com.alibaba.dubbo.rpc.Protocol) name from url(" + url.toString() + ") use keys([protocol])");
-    
-    com.alibaba.dubbo.rpc.Protocol extension = (com.alibaba.dubbo.rpc.Protocol)ExtensionLoader.getExtensionLoader(com.alibaba.dubbo.rpc.Protocol.class).getExtension(extName);
+    if(extName == null) throw new IllegalStateException("Fail to get extension(Protocol) name from url(" + url.toString() + ") use keys([protocol])");
+    //根据上面的实现类名，会在运行时，通过Dubbo的扩展机制加载具体实现类
+    Protocol extension = (Protocol)ExtensionLoader.getExtensionLoader(Protocol.class).getExtension(extName);
     
     return extension.export(arg0);
   }
   
   public void destroy() {
-  	throw new UnsupportedOperationException("method public abstract void com.alibaba.dubbo.rpc.Protocol.destroy() of interface com.alibaba.dubbo.rpc.Protocol is not adaptive method!");
+  	throw new UnsupportedOperationException("method public abstract void Protocol.destroy() of interface Protocol is not adaptive method!");
   }
   
   public int getDefaultPort() {
-  	throw new UnsupportedOperationException("method public abstract int com.alibaba.dubbo.rpc.Protocol.getDefaultPort() of interface com.alibaba.dubbo.rpc.Protocol is not adaptive method!");
+  	throw new UnsupportedOperationException("method public abstract int Protocol.getDefaultPort() of interface Protocol is not adaptive method!");
   }
 }
 ```
-可以看到被@Adaptive注解的方法都生成了具体的实现，并且实现逻辑都相同。而没有被注解的方法直接抛出不支持操作的异常。
+使用这种方式的原因也很容易能想到，在我们加载扩展点实现的时候，并没有调用实现的具体逻辑，那我们注入一个扩展点，也就不知道这个扩展点的实现具体是什么，所以要注入一个自适应的实现。等到运行时候，才根据自适应实现，来调用真正实现。
 
-当我们使用refprotocol调用方法的时候，其实是调用生成的类`Protocol$Adpative`中的方法，这里面的方法根据url中的参数配置来找到具体的实现类，找具体实现类的方式还是通过dubbo的扩展机制。比如url中可能会有protocol=dubbo，此时就可以根据这个dubbo来确定我们要找的类是DubboProtocol。可以查看下生成的代码中`getExtension(extName)`这里是根据具体的名字去查找实现类。
+## 扩展点自动包装功能（AOP）
 
-### `@Activate`注解
-此注解需要注解在类上或者方法上，并注明被激活的条件，以及所有的被激活实现类中的排序信息。
+先看下下面的示例，假如接口A还有另外一个实现者：AWrapper1：
 
-## ExtensionLoader
+```
+class AWrapper1 implements A{
+	private A a;
+    AWrapper1(A a){
+      this.a = a;
+    }
+    
+}
+```
+AWrapper1相当于A的包装类，类似于AOP的功能，AWrapper1增加了A的功能。当我们获取接口A的实现类的时候，得到的就是包装过的类。
 
-ExtensionLoader是dubbo的SPI机制的查找服务实现的工具类，类似与Java的ServiceLoader，可做类比。dubbo约定扩展点配置文件放在classpath下的`/META-INF/dubbo，/META-INF/dubbo/internal，/META-INF/services`目录下，配置文件名为接口的全限定名，配置文件内容为`配置名=扩展实现类的全限定名`。
+# Dubbo扩展点加载的实现
+首先还是定义接口，然后是接口的具体实现类，配置文件类似于Java的SPI配置文件，Dubbo的配置文件放在`META-INF/dubbo/`目录下，配置文件名为接口的全限定名，配置文件内容是`配置名=扩展实现类的全限定名`，加载实现类的功能是通过ExtensionLoader来实现，类似于Java中的ServiceLoader的作用。
 
-重点解析下ExtensionLoader这个类。dubbo的扩展点使用单一实例去加载，缓存在ExtensionLoader中。每一个ExtensionLoader实例仅负责加载特定SPI扩展的实现，想要获得某个扩展的实现，首先要获得该扩展对应的ExtensionLoader实例。
+另外，扩展点使用单一实例加载，需要确保线程安全性。
+
+# Dubbo扩展点加载的一些定义
+- `@SPI`注解，被此注解标记的接口，就表示是一个可扩展的接口。
+- `@Adaptive`注解，有两种注解方式：一种是注解在类上，一种是注解在方法上。
+
+	- 注解在类上，而且是注解在实现类上，目前dubbo只有AdaptiveCompiler和AdaptiveExtensionFactory类上标注了此注解，这是些特殊的类，ExtensionLoader需要依赖他们工作，所以得使用此方式。
+	- 注解在方法上，注解在接口的方法上，除了上面两个类之外，所有的都是注解在方法上。ExtensionLoader根据接口定义动态的生成适配器代码，并实例化这个生成的动态类。被Adaptive注解的方法会生成具体的方法实现。没有注解的方法生成的实现都是抛不支持的操作异常UnsupportedOperationException。被注解的方法在生成的动态类中，会根据url里的参数信息，来决定实际调用哪个扩展。
+
+	比如说这段代码：
+
+    ```
+    private static final Protocol refprotocol = ExtensionLoader.getExtensionLoader(Protocol.class).getAdaptiveExtension();
+    ```
+
+	当上面代码执行的时候，我们其实还不知道要真正使用的Protocol是什么，可能是具体的实现DubboProtocol，也可能是其他的具体实现的Protocol，那么这时候refprotocol到底是什么呢？refprotocol其实是在调用getAdaptiveExtension()方法时候，自动生成的一个类，代码如下：
+
+    ```
+    import com.alibaba.dubbo.common.extension.ExtensionLoader;
+    public class Protocol$Adpative implements Protocol {
+      public Invoker refer(Class arg0, URL arg1) throws Class {
+        if (arg1 == null) throw new IllegalArgumentException("url == null");
+
+        URL url = arg1;
+        String extName = ( url.getProtocol() == null ? "dubbo" : url.getProtocol() );
+
+        if(extName == null) throw new IllegalStateException("Fail to get extension(Protocol) name from url(" + url.toString() + ") use keys([protocol])");
+
+        Protocol extension = (Protocol)ExtensionLoader.getExtensionLoader(Protocol.class).getExtension(extName);
+
+        return extension.refer(arg0, arg1);
+      }
+
+      public Exporter export(Invoker arg0) throws Invoker {
+        if (arg0 == null) throw new IllegalArgumentException("Invoker argument == null");
+
+        if (arg0.getUrl() == null) throw new IllegalArgumentException("Invoker argument getUrl() == null");URL url = arg0.getUrl();
+
+        String extName = ( url.getProtocol() == null ? "dubbo" : url.getProtocol() );
+
+        if(extName == null) throw new IllegalStateException("Fail to get extension(Protocol) name from url(" + url.toString() + ") use keys([protocol])");
+
+        Protocol extension = (Protocol)ExtensionLoader.getExtensionLoader(Protocol.class).getExtension(extName);
+
+        return extension.export(arg0);
+      }
+
+      public void destroy() {
+        throw new UnsupportedOperationException("method public abstract void Protocol.destroy() of interface Protocol is not adaptive method!");
+      }
+
+      public int getDefaultPort() {
+        throw new UnsupportedOperationException("method public abstract int Protocol.getDefaultPort() of interface Protocol is not adaptive method!");
+      }
+    }
+    ```
+	可以看到被@Adaptive注解的方法都生成了具体的实现，并且实现逻辑都相同。而没有被注解的方法直接抛出不支持操作的异常。
+
+	当我们使用refprotocol调用方法的时候，其实是调用生成的类`Protocol$Adpative`中的方法，这里面的方法根据url中的参数配置来找到具体的实现类，找具体实现类的方式还是通过dubbo的扩展机制。比如url中可能会有protocol=dubbo，此时就可以根据这个dubbo来确定我们要找的类是DubboProtocol。可以查看下生成的代码中`getExtension(extName)`这里是根据具体的名字去查找实现类。
+
+- `@Activate`注解，此注解需要注解在类上或者方法上，并注明被激活的条件，以及所有的被激活实现类中的排序信息。
+
+- ExtensionLoader，是dubbo的SPI机制的查找服务实现的工具类，类似与Java的ServiceLoader，可做类比。dubbo约定扩展点配置文件放在classpath下的`/META-INF/dubbo，/META-INF/dubbo/internal，/META-INF/services`目录下，配置文件名为接口的全限定名，配置文件内容为`配置名=扩展实现类的全限定名`。
+
+# Dubbo扩展点加载的源码解析
+
+重点解析下ExtensionLoader这个类。Dubbo的扩展点使用单一实例去加载，缓存在ExtensionLoader中。每一个ExtensionLoader实例仅负责加载特定SPI扩展的实现，想要获得某个扩展的实现，首先要获得该扩展对应的ExtensionLoader实例。
 
 以Protocol为例进行分析扩展点的加载：
 
 ```
-//这样使用，加载Protocol扩展点
+//这样使用，先获取ExtensionLoader实例，然后加载自适应的Protocol扩展点
 Protocol protocol = ExtensionLoader.getExtensionLoader(Protocol.class).getAdaptiveExtension();
+//使用
+protocol.refer(Class<T> type, URL url))；
 ```
-第一步，getExtensionLoader(Protocol.class)，根据要加载的接口Protocol，创建出一个ExtensionLoader实例，加载完的实例会被缓存起来：
+可以看到，使用扩展点加载的步骤大概有三步：
+
+1. 获取ExtensionLoader实例。
+2. 获取自适应实现。
+3. 使用获取到的实现。
+
+下面我们就以这三步作为分界，来深入源码的解析。
+
+## 获取ExtensionLoader实例
+第一步，getExtensionLoader(Protocol.class)，根据要加载的接口Protocol，创建出一个ExtensionLoader实例，加载完的实例会被缓存起来，下次再加载Protocol的ExtensionLoader的时候，会使用已经缓存的这个，不会再新建一个实例：
 
 ```
 public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> type) {
@@ -152,7 +206,28 @@ public static <T> ExtensionLoader<T> getExtensionLoader(Class<T> type) {
     return loader;
 }
 ```
-上面代码返回一个ExtensionLoader，`getExtensionLoader(Protocol.class)`这一步没有进行任何的加载工作，只是获得了一个ExtensionLoader的实例。加载是在调用getAdaptiveExtension()方法中进行的：
+上面代码返回一个ExtensionLoader实例，`getExtensionLoader(Protocol.class)`这一步没有进行任何的加载工作，只是获得了一个ExtensionLoader的实例。
+
+### ExtensionLoader的构造方法
+上面获取的是一个ExtensionLoader实例，接着看下构造实例的时候到底做了什么，我们发现在ExtensionLoader中只有一个私有的构造方法：
+
+```
+private ExtensionLoader(Class<?> type) {
+	//接口类型
+    this.type = type;
+    //对于扩展类型是ExtensionFactory的，设置为null
+    //getAdaptiveExtension方法获取一个运行时自适应的扩展类型
+    //每个Extension只能有一个@Adaptive类型的实现，如果么有，dubbo会自动生成一个类
+    //objectFactory是一个ExtensionFactory类型的属性，主要用于加载需要注入的类型的实现
+    //objectFactory主要用在注入那一步，详细说明见注入时候的说明
+    //这里记住非ExtensionFactory类型的返回的都是一个AdaptiveExtensionFactory
+    objectFactory = (type == ExtensionFactory.class ? null : ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension());
+}
+```
+不难理解，ExtensionFactory是主要是用来加载被注入的类的实现，分为SpiExtensionFactory和SpringExtensionFactory两个，分别用来加载SPI扩展实现和Spring中bean的实现。
+
+## 获取自适应实现
+上面返回一个ExtensionLoader的实例之后，开始加载自适应实现，加载是在调用getAdaptiveExtension()方法中进行的：
 
 ```
 getAdaptiveExtension()-->
@@ -163,7 +238,7 @@ getAdaptiveExtension()-->
 
 ```
 
-先看下getAdaptiveExtension()方法，用来获取一个扩展的自适应实现类，最后返回的自适应实现类是一个类名为`Protocol$Adaptive`，并且这个类实现了Protocol接口：
+先看下getAdaptiveExtension()方法，用来获取一个扩展的自适应实现类，最后返回的自适应实现类是一个类名为`Protocol$Adaptive`的类，并且这个类实现了Protocol接口：
 
 ```
 public T getAdaptiveExtension() {
@@ -191,7 +266,9 @@ public T getAdaptiveExtension() {
     return (T) instance;
 }
 ```
-接着看下createAdaptiveExtension()方法，用来创建自适应扩展类的实例：
+### 创建自适应扩展
+
+缓存中不存在自适应扩展的实例，表示还没有创建过自适应扩展的实例，接下来就是创建自适应扩展实现，createAdaptiveExtension()方法，用来创建自适应扩展类的实例：
 
 ```
 private T createAdaptiveExtension() {
@@ -203,13 +280,14 @@ private T createAdaptiveExtension() {
     } catch (Exception e) {}
 }
 ```
-
+### 获取自适应扩展类
 接着查看getAdaptiveExtensionClass()方法，用来获取一个自适应扩展的Class，这个Class将会在下一步被实例化：
 
 ```
 private Class<?> getAdaptiveExtensionClass() {
     //加载当前Extension的所有实现（这里举例是Protocol，只会加载Protocol的所有实现类），如果有@Adaptive类型的实现类，会赋值给cachedAdaptiveClass
     //目前只有AdaptiveExtensionFactory和AdaptiveCompiler两个实现类是被注解了@Adaptive
+    //除了ExtensionFactory和Compiler类型的扩展之外，其他类型的扩展都是下面动态创建的的实现
     getExtensionClasses();
     //加载完所有的实现之后，发现有cachedAdaptiveClass不为空
     //也就是说当前获取的自适应实现类是AdaptiveExtensionFactory或者是AdaptiveCompiler，就直接返回，这两个类是特殊用处的，不用代码生成，而是现成的代码
@@ -217,12 +295,12 @@ private Class<?> getAdaptiveExtensionClass() {
         return cachedAdaptiveClass;
     }
     //没有找到Adaptive类型的实现，动态创建一个
-    //比如Protocol的实现类，没有任何一个是用@Adaptive来直接的，只有Protocol接口的方法是有注解的
+    //比如Protocol的实现类，没有任何一个实现是用@Adaptive来注解的，只有Protocol接口的方法是有注解的
     //这时候就需要来动态的生成了，也就是生成Protocol$Adaptive
     return cachedAdaptiveClass = createAdaptiveExtensionClass();
 }
 ```
-
+#### 加载扩展类实现
 先看下getExtensionClasses()这个方法，加载所有的扩展类的实现：
 
 ```
@@ -441,6 +519,7 @@ private void loadFile(Map<String, Class<?>> extensionClasses, String dir) {
 ```
 到这里加载当前Extension的所有实现就已经完成了，继续返回getAdaptiveExtensionClass中，在调用完getExtensionClasses()之后，会首先检查是不是已经有@Adaptive注解的类被解析并加入到缓存中了，如果有就直接返回，这里的cachedAdaptiveClass中现在只能是AdaptiveExtensionFactory或者AdaptiveCompiler中的一个，如果没有，说明是一个普通扩展点，就动态创建一个，比如会创建一个`Protocol$Adaptive`。
 
+#### 创建自适应扩展类的代码
 看下createAdaptiveExtensionClass()这个方法，用来动态的创建自适应扩展类：
 
 ```
@@ -522,7 +601,7 @@ public Class<?> compile(String code, ClassLoader classLoader) {
     return compiler.compile(code, classLoader);
 }
 ```
-
+#### 获取指定名字的扩展
 先看下根据具体的名字来获取扩展的实现类`loader.getExtension(name);`，loader是`ExtensionLoader<Compiler> `类型的。这里就是比Java的SPI要方便的地方，Java的SPI只能通过遍历所有的实现类来查找，而dubbo能够指定一个名字查找。代码如下：
 
 ```
@@ -595,6 +674,7 @@ private T createExtension(String name) {
 ```
 有关属性注入和Wrapper的包装，下面再讲。到这里Compiler就能获得到一个指定name的具体实现类的实例了，然后就是调用实例的compile()方法对生成的代码进行编译。
 
+#### 获取默认扩展实现
 如果在AdaptiveCompiler中没有找到指定的名字，就会找默认的扩展实现`loader.getDefaultExtension();`：
 
 ```
@@ -623,6 +703,8 @@ public T getDefaultExtension() {
     } catch (Exception e) { }
 }
 ```
+
+### 扩展点注入
 
 接下来就是有关扩展点的注入的问题了，injectExtension，关于注入的解释查看最上面扩展点自动装配（IOC）的说明，injectExtension方法：
 
@@ -668,6 +750,7 @@ private T injectExtension(T instance) {
 
 这里使用SpiExtensionFactory的获取扩展的方法为例，getExtension，也是先判断给定类是否是注解了@SPI的接口，然后根据类去获取ExtensionLoader，在使用得到的ExtensionLoader去加载自适应扩展。
 
+#### objectFactory的来历
 objectFactory的来路，在ExtensionLoader中有个私有构造器：
 
 ```
@@ -675,6 +758,15 @@ objectFactory的来路，在ExtensionLoader中有个私有构造器：
 private ExtensionLoader(Class<?> type) {
     this.type = type;
     //这里会获得一个AdaptiveExtensionFactory
+    //根据类型和名称信息从ExtensionFactory中获取
+    //获取实现
+    //为什么要使用对象工厂来获取setter方法中对应的实现？
+    //不能通过spi直接获取自适应实现吗？比如ExtensionLoader.getExtension(pt);
+    //因为setter方法中有可能是一个spi，也有可能是普通的bean
+    //所以此时不能写死通过spi获取，还需要有其他方式来获取实现进行注入
+    // dubbo中有两个实现，一个是spi的ExtensionFactory，一个是spring的ExtensionFactory
+    //如果还有其他的，我们可以自定义ExtensionFactory
+    //objectFactory是AdaptiveExtensionFactory实例
     objectFactory = (type == ExtensionFactory.class ? null : ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension());
 }
 ```
@@ -686,7 +778,9 @@ private ExtensionLoader(Class<?> type) {
 ```
 private static final Protocol refprotocol = ExtensionLoader.getExtensionLoader(Protocol.class).getAdaptiveExtension();
 ```
-我们的到了一个`Protocol$Adaptive`实例，接着就是调用了，比如说我们要调用`refprotocol.refer(Class<T> type, URL url))`方法，由于这里refprotocol是一个`Protocol$Adaptive`实例，所以就先调用这个实例的refer方法，这里的实例的代码在最上面：
+
+## 得到扩展之后的使用
+我们得到了一个`Protocol$Adaptive`实例，接着就是调用了，比如说我们要调用`refprotocol.refer(Class<T> type, URL url))`方法，由于这里refprotocol是一个`Protocol$Adaptive`实例，所以就先调用这个实例的refer方法，这里的实例的代码在最上面：
 
 ```
 //这里为了好看，代码做了精简，包名都去掉了

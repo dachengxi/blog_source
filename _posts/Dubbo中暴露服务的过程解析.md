@@ -13,19 +13,16 @@ dubbo暴露服务有两种情况，一种是设置了延迟暴露（比如delay=
 - 没有设置延迟或者延迟为-1，dubbo会在Spring实例化完bean之后，在刷新容器最后一步发布ContextRefreshEvent事件的时候，通知实现了ApplicationListener的类进行回调onApplicationEvent，dubbo会在这个方法中发布服务。
 
 但是不管延迟与否，都是使用ServiceConfig的export()方法进行服务的暴露。使用export初始化的时候会将Bean对象转换成URL格式，所有Bean属性转换成URL的参数。
-
 <!--more-->
-
-# 过程
 以没有设置延迟暴露熟属性的过程为例。
 
-## 简易的暴露流程
+# 简易的暴露流程
 
 1. 首先将服务的实现封装成一个Invoker，Invoker中封装了服务的实现类。
 2. 将Invoker封装成Exporter，并缓存起来，缓存里使用Invoker的url作为key。
 3. 服务端Server启动，监听端口。（请求来到时，根据请求信息生成key，到缓存查找Exporter，就找到了Invoker，就可以完成调用。）
 
-## Spring容器初始化调用
+# Spring容器初始化调用
 当Spring容器实例化bean完成，走到最后一步发布ContextRefreshEvent事件的时候，ServiceBean会执行onApplicationEvent方法，该方法调用ServiceConfig的export方法。
 
 ServiceConfig初始化的时候，会先初始化静态变量protocol和proxyFactory，这两个变量初始化的结果是通过dubbo的spi扩展机制得到的。
@@ -118,9 +115,9 @@ public class ProxyFactory$Adpative implements com.alibaba.dubbo.rpc.ProxyFactory
 ```
 生成的代码中可以看到，默认的Protocol实现是dubbo，默认的proxy是javassist。
 
-## ServiceConfig的export
+# ServiceConfig的export
 
-### export的步骤简介
+## export的步骤简介
 
 1. 首先会检查各种配置信息，填充各种属性，总之就是保证我在开始暴露服务之前，所有的东西都准备好了，并且是正确的。
 2. 加载所有的注册中心，因为我们暴露服务需要注册到注册中心中去。
@@ -150,7 +147,7 @@ doExportUrlsFor1Protocol根据不同的协议将服务以URL形式暴露。如�
 ```
 dubbo://192.168.1.100:20880/dubbo.common.hello.service.HelloService?anyhost=true&application=dubbo-provider&application.version=1.0&delay=5000&dubbo=2.5.3&environment=product&interface=dubbo.common.hello.service.HelloService&methods=sayHello&organization=china&owner=cheng.xi&pid=2939&side=provider&timestamp=1488898464953
 ```
-
+### 本地暴露
 这时候会先做本地暴露，exportLocal(url);：
 
 ```
@@ -175,7 +172,7 @@ private void exportLocal(URL url) {
     }
 }
 ```
-
+### 暴露为远程服务
 接下来是暴露为远程服务，跟本地暴露的流程一样还是先获取Invoker，然后导出成Exporter：
     
 ```
@@ -191,7 +188,7 @@ private void exportLocal(URL url) {
 ```
 **关于Invoker，Exporter等的解释参见最下面的内容。**
 
-## 暴露远程服务时的获取Invoker过程
+# 暴露远程服务时的获取Invoker过程
 服务实现类转换成Invoker，大概的步骤是：
 
 1. 根据上面生成的proxyFactory方法调用具体的ProxyFactory实现类的getInvoker方法获取Invoker。
@@ -219,7 +216,7 @@ public Invoker getInvoker(Object arg0, Class arg1, URL arg2) throws Object {
     return extension.getInvoker(arg0, arg1, arg2);
 }
 ```
-
+## 使用JavassistProxyFactory获取Invoker
 JavassistProxyFactory的getInvoker方法：
 
 ```
@@ -334,7 +331,34 @@ public class Wrapper1 extends Wrapper {
 
 生成完Wrapper以后，返回一个AbstractProxyInvoker实例。至此生成Invoker的步骤就完成了。可以看到Invoker执行方法的时候，会调用Wrapper的invokeMethod，这个方法中会有真实的实现类调用真实方法的代码。
 
-## 暴露远程服务时导出Invoker为Exporter
+## 使用JdkProxyFactory获取invoker
+JdkProxyFactory的getInvoker方法：
+
+```
+public <T> Invoker<T> getInvoker(T proxy, Class<T> type, URL url) {
+    return new AbstractProxyInvoker<T>(proxy, type, url) {
+        @Override
+        protected Object doInvoke(T proxy, String methodName, 
+                                  Class<?>[] parameterTypes, 
+                                  Object[] arguments) throws Throwable {
+            Method method = proxy.getClass().getMethod(methodName, parameterTypes);
+            return method.invoke(proxy, arguments);
+        }
+    };
+}
+```
+直接返回一个AbstractProxyInvoker实例，没有做处理，只是使用反射调用具体的方法。
+
+JdkProxyFactory的getProxy方法：
+
+```
+public <T> T getProxy(Invoker<T> invoker, Class<?>[] interfaces) {
+    return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), interfaces, new InvokerInvocationHandler(invoker));
+}
+```
+使用Java的反射机制生成一个代理类。
+
+# 暴露远程服务时导出Invoker为Exporter
 Invoker导出为Exporter分为两种情况，第一种是Registry类型的Invoker，第二种是其他协议类型的Invoker，分开解析。
 
 代码入口：
@@ -343,7 +367,7 @@ Invoker导出为Exporter分为两种情况，第一种是Registry类型的Invoke
 Exporter<?> exporter = protocol.export(invoker);
 ```
 
-### Registry类型的Invoker处理过程
+## Registry类型的Invoker处理过程
 
 大概的步骤是：
 
@@ -435,14 +459,14 @@ public <T> Exporter<T> export(final Invoker<T> originInvoker) throws RpcExceptio
 }
 ```
 
-#### 交给具体的协议去暴露服务
+### 交给具体的协议去暴露服务
 先不解析，留在后面，可以先去后面看下导出过程，然后再回来接着看注册到注册中心的过程。具体协议暴露服务主要是打开服务器和端口，进行监听。
 
-#### 注册到注册中心
+### 连接注册中心并获取Registry实例
 具体的协议进行暴露并且返回了一个ExporterChangeableWrapper之后，接下来看下一步连接注册中心并注册到注册中心，代码是在RegistryProtocol的export方法：
 
 ```
-//此步已经分析完
+//先假装此步已经分析完
 final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker);
 //得到具体的注册中心，连接注册中心，此时提供者作为消费者引用注册中心核心服务RegistryService
 final Registry registry = getRegistry(originInvoker);
@@ -564,7 +588,7 @@ public AbstractRegistry(URL url) {
     notify(url.getBackupUrls());
 }
 ```
-
+### 获取Registry时的订阅
 notify()方法：
 
 ```
@@ -685,7 +709,7 @@ public ZookeeperRegistry(URL url, ZookeeperTransporter zookeeperTransporter) {
     });
 }
 ```
-
+### 获取注册到注册中心的url
 获取到了Registry，Registry实例中保存着连接到了zookeeper的zkClient实例之后，下一步获取要注册到注册中心的url（在RegistryProtocol中）。
 
 ```
@@ -696,7 +720,7 @@ final URL registedProviderUrl = getRegistedProviderUrl(originInvoker);
 //interface=dubbo.common.hello.service.HelloService&methods=sayHello&
 //organization=china&owner=cheng.xi&pid=9457&side=provider&timestamp=1489807681627
 ```
-
+### 注册到注册中心
 然后调用`registry.register(registedProviderUrl)`注册到注册中心（在RegistryProtocol中）。register方法的实现在FailbackRegistry中：
 
 ```
@@ -770,7 +794,7 @@ protected void doRegister(URL url) {
 最后返回Exporter新实例，返回到ServiceConfig中。服务的发布就算完成了。
 
 
-### 交给具体的协议进行服务暴露
+## 交给具体的协议进行服务暴露
 这里也就是非Registry类型的Invoker的导出过程。主要的步骤是将本地ip和20880端口打开，进行监听。最后包装成exporter返回。
 
 doLocalExport(invoker)：
@@ -811,7 +835,7 @@ private <T> ExporterChangeableWrapper<T>  doLocalExport(final Invoker<T> originI
     return (ExporterChangeableWrapper<T>) exporter;
 }
 ```
-
+### 使用dubbo协议导出
 这里`protocol.export(invokerDelegete)`就要去具体的DubboProtocol中执行了，DubboProtocol的外面包裹着ProtocolFilterWrapper，再外面还包裹着ProtocolListenerWrapper。会先经过ProtocolListenerWrapper：
 
 ```
@@ -824,6 +848,7 @@ public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
     //先进行导出protocol.export(invoker)
     //然后获取自适应的监听器
     //最后返回的是包装了监听器的Exporter
+    //这里监听器的获取是getActivateExtension，如果指定了listener就加载实现，没有指定就不加载
     return new ListenerExporterWrapper<T>(protocol.export(invoker), 
             Collections.unmodifiableList(ExtensionLoader.getExtensionLoader(ExporterListener.class)
                     .getActivateExtension(invoker.getUrl(), Constants.EXPORTER_LISTENER_KEY)));
