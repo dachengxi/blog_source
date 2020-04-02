@@ -3,9 +3,8 @@ title: Spring中AOP源码深入解析
 date: 2017-04-12 22:39:24
 categories: 
 	- Spring
-	- AOP
 tags:
-	- Spring AOP源码
+	- Spring
 ---
 有关AOP相关概念以及Spring AOP相关概念和Spring AOP的使用不再重复。关于AOP在Spring中的地位，不用说相信我们都知道，也都会用，但是对于更深入的东西，还未接触过，这里就对Spring AOP的相关源码进行说明一下，看看到底Spring中AOP是怎么实现的。
 <!--more-->

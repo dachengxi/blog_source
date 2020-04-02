@@ -4,7 +4,6 @@ date: 2017-02-12 22:02:37
 categories: Spring
 tags:
 	- Spring
-	- Bean
 ---
 BeanFactory和ApplicationContext是Spring中两种很重要的容器，前者提供了最基本的依赖注入的支持，后者在继承前者的基础上进行了功能的拓展，增加了事件传播，资源访问，国际化的支持等功能。同时两者的生命周期也稍微有些不同。
 
@@ -40,10 +39,10 @@ BeanFactory和ApplicationContext是Spring中两种很重要的容器，前者提
 9. 如果Bean实现了BeanPostProcessor接口，则调用postProcessAfterInitialization()方法。
 10. 现在Bean已经可以使用了。
 	1. scope为singleton的Bean缓存在Spring IOC容器中。
-   	2. scope为prototype的Bean生命周期交给客户端。
+      	2. scope为prototype的Bean生命周期交给客户端。
 11. 销毁。
 	1. 如果Bean实现了DisposableBean接口，destory()方法将会被调用。
-   	2. 如果配置了destory-method方法，就调用这个方法。
+      	2. 如果配置了destory-method方法，就调用这个方法。
 
 # 两种容器中的不同之处
 

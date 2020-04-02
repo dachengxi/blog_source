@@ -3,10 +3,9 @@ title: SpringMVC执行流程及源码解析
 date: 2017-04-06 22:47:17
 categories: 
 	- Spring
-	- SpringMVC
 tags:
+	- Spring
 	- SpringMVC
-	- SpringMVC执行流程
 ---
 在SpringMVC中主要是围绕着DispatcherServlet来设计，可以把它当做指挥中心。这里先说明一下SpringMVC文档给出的执行流程，然后是我们稍微具体的执行流程，最后是流程大致的源码跟踪。关于很很很详细的源码解析，这里暂先不做。
 

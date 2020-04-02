@@ -3,7 +3,7 @@ title: Spring事务简介
 date: 2016-06-13 17:16:37
 categories: Spring
 tags:
-	- Spring事务
+	- Spring
 ---
 
 ## 事务的传播行为
@@ -40,9 +40,9 @@ Spring默认情况下会对RunTimeException进行事务回滚。这个异常是u
 2. 让unchecked例外不回滚： @Transactional(notRollbackFor=RunTimeException.class)
 3. 不需要事务管理的(只查询的)方法：@Transactional(propagation=Propagation.NOT_SUPPORTED)
 4. 如果不添加rollbackFor等属性，Spring碰到Unchecked Exceptions都会回滚，不仅是RuntimeException，也包括Error。
- 
+
 注意:如果异常被try｛｝catch｛｝了，事务就不回滚了，如果想让事务回滚必须再往外抛try｛｝catch｛throw Exception｝。
- 
+
 
 ## 参考
 [http://fhjxp.iteye.com/blog/124978](http://fhjxp.iteye.com/blog/124978)

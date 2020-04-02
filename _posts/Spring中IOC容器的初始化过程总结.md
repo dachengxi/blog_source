@@ -4,7 +4,6 @@ date: 2020-03-22 21:16:14
 categories: Spring
 tags:
 	- Spring
-	- IOC
 ---
 
 总结一下Spring IOC容器的初始化过程，对于具体的源码分析以前写过文档，网上也有很多类似的文章，这里不做重复。

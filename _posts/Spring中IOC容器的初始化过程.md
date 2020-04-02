@@ -4,7 +4,6 @@ date: 2017-02-10 23:59:13
 categories: Spring
 tags:
 	- Spring
-	- IOC
 ---
 Spring IOC容器初始化过程分为Resource定位，载入解析，注册。IOC容器初始化过程中不包含Bean的依赖注入。Bean的依赖注入一般会发生在第一次通过getBean向容器索取Bean的时候。
 

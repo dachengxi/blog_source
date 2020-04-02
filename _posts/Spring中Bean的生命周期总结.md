@@ -4,7 +4,6 @@ date: 2020-03-22 22:21:18
 categories: Spring
 tags:
 	- Spring
-	- Bean
 ---
 
 总结一下Spring中Bean的生命周期，对于具体的源码分析以前写过文档，网上也有很多类似的文章，这里不做重复。

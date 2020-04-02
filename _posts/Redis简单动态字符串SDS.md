@@ -5,7 +5,6 @@ categories:
 	- 缓存
 tags:
 	- redis
-	- sds
 ---
 
 Redis中的字符串使用的是Redis自定义的抽象类型，而不是直接使用C语言的字符串表示。Redis的字符串叫做：简单动态字符串Simple Dynamic String，简称SDS。

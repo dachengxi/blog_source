@@ -3,7 +3,7 @@ title: SpringBoot简易教程
 date: 2016-07-08 14:36:41
 categories: SpringBoot
 tags:
-	- SpringBoot教程
+	- Spring
 	- SpringBoot
 ---
 

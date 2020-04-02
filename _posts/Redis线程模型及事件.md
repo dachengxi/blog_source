@@ -1,5 +1,5 @@
 ---
-title: Redis事件
+title: Redis线程模型及事件
 date: 2019-04-03 22:10:00
 categories: 
 	- 缓存

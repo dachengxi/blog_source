@@ -1,10 +1,9 @@
 ---
-title: Spring ApplicationContext事件机制
+title: Spring的ApplicationContext事件机制
 date: 2017-02-15 19:04:30
 categories: Spring
 tags:
 	- Spring
-	- Spring 事件机制
 ---
 ApplicationContext中事件处理是由ApplicationEvent类和ApplicationListener接口来提供的。如果一个Bean实现了ApplicationListener接口，并且已经发布到容器中去，每次ApplicationContext发布一个ApplicationEvent事件，这个Bean就会接到通知。Spring事件机制是观察者模式的实现。
 
