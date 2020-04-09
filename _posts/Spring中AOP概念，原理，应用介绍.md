@@ -1,11 +1,10 @@
 ---
-title: AOP概念，原理，应用介绍
+title: Spring中AOP概念，原理，应用介绍
 date: 2017-04-12 14:12:55
 categories: 
 	- Spring
-	- AOP
 tags:
-	- Spring AOP
+	- Spring
 ---
 心情没法不沉重，被问到AOP是什么？AOP原理是什么？我竟然张大了嘴巴，说不出来！对于一个程序员的打击，还能有比这更大的吗？我没脸说我是个写代码的，我也没脸说我是程序员。
 
