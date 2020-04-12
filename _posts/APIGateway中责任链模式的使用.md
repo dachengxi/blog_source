@@ -1,11 +1,10 @@
 ---
 title: APIGateway中责任链模式的使用
-date: 2020-04-09 21:57:10
+date: 2020-04-08 20:49:22
 categories: 
 	- APIGateway
 tags:
 	- APIGateway
-
 ---
 
 重新看一下责任链模式，在APIGateway设计中要用到责任链模式。简单写了代码测试下Spring中使用以及Apache CommonsChain使用。
@@ -339,7 +338,6 @@ public abstract class AbstractCommand implements Command {
 ```
 
 ```java
-@Component
 public class BlacklistCommand extends AbstractCommand {
 
     @Override
@@ -356,7 +354,6 @@ public class BlacklistCommand extends AbstractCommand {
 ```
 
 ```java
-@Component
 public class FlowControlCommand extends AbstractCommand {
 
     @Override
@@ -368,7 +365,6 @@ public class FlowControlCommand extends AbstractCommand {
 ```
 
 ```java
-@Component
 public class ParamCheckCommand extends AbstractCommand {
 
     @Override
@@ -385,7 +381,6 @@ public class ParamCheckCommand extends AbstractCommand {
 ```
 
 ```java
-@Component
 public class InvokeServiceCommand extends AbstractCommand {
 
     @Override
@@ -401,24 +396,37 @@ public class InvokeServiceCommand extends AbstractCommand {
 ```
 
 ```java
-public class Chains extends ChainBase {
-
-    public Chains() {
-        addCommand(new BlacklistCommand());
-        addCommand(new FlowControlCommand());
-        addCommand(new ParamCheckCommand());
-        addCommand(new InvokeServiceCommand());
-    }
-}
-```
-
-```java
 @Configuration
 public class CommonsChainConfig {
 
     @Bean
-    public Chains chains() {
-        return new Chains();
+    public Command blackListCommand() {
+        return new BlacklistCommand();
+    }
+
+    @Bean
+    public Command flowControlCommand() {
+        return new FlowControlCommand();
+    }
+
+    @Bean
+    public Command paramCheckCommand() {
+        return new ParamCheckCommand();
+    }
+
+    @Bean
+    public Command invokeServiceCommand() {
+        return new InvokeServiceCommand();
+    }
+
+    @Bean
+    public ChainBase chains() {
+        ChainBase chainBase = new ChainBase();
+        chainBase.addCommand(blackListCommand());
+        chainBase.addCommand(flowControlCommand());
+        chainBase.addCommand(paramCheckCommand());
+        chainBase.addCommand(invokeServiceCommand());
+        return chainBase;
     }
 }
 ```
@@ -429,7 +437,7 @@ public class CommonsChainConfig {
 public class ChainController {
 
     @Resource
-    private Chains chains;
+    private ChainBase chains;
 
     @RequestMapping(value = "/commonsChainTest", method = RequestMethod.GET)
     public String commonsChainTest(@RequestParam String str) throws Exception {

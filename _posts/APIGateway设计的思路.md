@@ -5,7 +5,6 @@ categories:
 	- APIGateway
 tags:
 	- APIGateway
-
 ---
 
 简述一下APIGateway的设计思路，准备从头写一个网关。

@@ -5,7 +5,6 @@ categories:
 	- APIGateway
 tags:
 	- APIGateway
-
 ---
 
 APIGateway的设计文档，包括整体架构和数据库设计。
@@ -105,14 +104,14 @@ APIGateway的设计文档，包括整体架构和数据库设计。
 
 ## agw_out_api
 
-| 名称          | 类型         | 是否为空 | 索引    | 默认值 | 备注         |
-| ------------- | ------------ | -------- | ------- | ------ | ------------ |
-| id            | bigint(20)   | N        | PRIMARY |        | 主键ID       |
-| created_time  | datetime     | N        |         |        | 创建时间     |
-| modified_time | datetime     | N        |         |        | 修改时间     |
-| version       | smallint(6)  | N        |         |        | 版本号       |
-| out_id        | bigint(20)   | N        |         |        | 外部系统id   |
-| api_id        | varchar(255) | N        |         |        | 外部系统描述 |
+| 名称          | 类型        | 是否为空 | 索引    | 默认值 | 备注       |
+| ------------- | ----------- | -------- | ------- | ------ | ---------- |
+| id            | bigint(20)  | N        | PRIMARY |        | 主键ID     |
+| created_time  | datetime    | N        |         |        | 创建时间   |
+| modified_time | datetime    | N        |         |        | 修改时间   |
+| version       | smallint(6) | N        |         |        | 版本号     |
+| out_id        | bigint(20)  | N        |         |        | 外部系统id |
+| api_id        | bigint(20)  | N        |         |        | api id     |
 
 ## agw_out_ip
 
