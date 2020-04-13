@@ -52,19 +52,18 @@ APIGateway的设计文档，包括整体架构和数据库设计。
 
 ## agw_api
 
-| 名称          | 类型         | 是否为空 | 索引    | 默认值 | 备注                     |
-| ------------- | ------------ | -------- | ------- | ------ | ------------------------ |
-| id            | bigint(20)   | N        | PRIMARY |        | 主键ID                   |
-| created_time  | datetime     | N        |         |        | 创建时间                 |
-| modified_time | datetime     | N        |         |        | 修改时间                 |
-| version       | smallint(6)  | N        |         |        | 版本号                   |
-| code          | varchar(255) | N        |         |        | api唯一标识              |
-| name          | varchar(255) | N        |         |        | api接口名                |
-| method        | varchar(255) | N        |         |        | api方法名                |
-| alias         | varchar()    | Y        |         |        | api方法别名              |
-| sys_id        | bigint(20)   | N        |         |        | 所属业务系统id           |
-| timeout       | int(6)       | N        |         | 1000   | 超时时间，毫秒           |
-| ip_control    | tinyint(4)   | Y        |         | 0      | 是否白名单控制 0-否 1-是 |
+| 名称          | 类型         | 是否为空 | 索引    | 默认值 | 备注           |
+| ------------- | ------------ | -------- | ------- | ------ | -------------- |
+| id            | bigint(20)   | N        | PRIMARY |        | 主键ID         |
+| created_time  | datetime     | N        |         |        | 创建时间       |
+| modified_time | datetime     | N        |         |        | 修改时间       |
+| version       | smallint(6)  | N        |         |        | 版本号         |
+| code          | varchar(255) | N        |         |        | api唯一标识    |
+| name          | varchar(255) | N        |         |        | api接口名      |
+| method        | varchar(255) | N        |         |        | api方法名      |
+| alias         | varchar()    | Y        |         |        | api方法别名    |
+| sys_id        | bigint(20)   | N        |         |        | 所属业务系统id |
+| timeout       | int(6)       | N        |         | 1000   | 超时时间，毫秒 |
 
 ## agw_api_param
 
@@ -92,15 +91,16 @@ APIGateway的设计文档，包括整体架构和数据库设计。
 
 ## agw_out
 
-| 名称          | 类型         | 是否为空 | 索引    | 默认值 | 备注             |
-| ------------- | ------------ | -------- | ------- | ------ | ---------------- |
-| id            | bigint(20)   | N        | PRIMARY |        | 主键ID           |
-| created_time  | datetime     | N        |         |        | 创建时间         |
-| modified_time | datetime     | N        |         |        | 修改时间         |
-| version       | smallint(6)  | N        |         |        | 版本号           |
-| name          | varchar(255) | N        |         |        | 外部系统名       |
-| desc          | varchar(255) | N        |         |        | 外部系统描述     |
-| code          | varchar(255) | N        |         |        | 外部系统唯一标识 |
+| 名称          | 类型         | 是否为空 | 索引    | 默认值 | 备注                     |
+| ------------- | ------------ | -------- | ------- | ------ | ------------------------ |
+| id            | bigint(20)   | N        | PRIMARY |        | 主键ID                   |
+| created_time  | datetime     | N        |         |        | 创建时间                 |
+| modified_time | datetime     | N        |         |        | 修改时间                 |
+| version       | smallint(6)  | N        |         |        | 版本号                   |
+| name          | varchar(255) | N        |         |        | 外部系统名               |
+| desc          | varchar(255) | N        |         |        | 外部系统描述             |
+| code          | varchar(255) | N        |         |        | 外部系统唯一标识         |
+| ip_control    | tinyint(4)   | Y        |         | 0      | 是否白名单控制 0-否 1-是 |
 
 ## agw_out_api
 
