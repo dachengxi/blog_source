@@ -76,7 +76,7 @@ APIGateway的设计文档，包括整体架构和数据库设计。
 | api_id        | varchar(255) | N        |         |        | api id   |
 | name          | varchar(255) | N        |         |        | 参数名   |
 | type          | varchar(255) | N        |         |        | 参数类型 |
-| order         | smallint(6)  | N        |         |        | 参数顺序 |
+| sequence      | smallint(6)  | N        |         |        | 参数顺序 |
 
 ## agw_sys
 
