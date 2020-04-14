@@ -1,6 +1,6 @@
 ---
 title: JVM运行时数据区域介绍
-date: 2017-05-06 23:28:39
+date: 2017-05-20 23:28:39
 categories:
     - JVM
 tags: 
