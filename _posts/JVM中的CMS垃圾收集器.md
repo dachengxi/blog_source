@@ -1,5 +1,5 @@
 ---
-title: JVM中FullGC耗时过高
+title: JVM中的CMS垃圾收集器
 date: 2017-07-01 17:04:04
 categories: 
 	- JVM
