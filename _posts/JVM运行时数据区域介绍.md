@@ -16,7 +16,7 @@ Java虚拟机定义了程序运行期间使用到的运行时数据区域，其�
 * 方法区（Method Area）
 * 本地方法栈（Native Method Stack）
 
-![JVM内部结构](JVM_Internal_Architecture.png)
+![JVM内部结构](./JVM运行时数据区域介绍/JVM_Internal_Architecture.png)
 
 图片来自：https://blog.jamesdbloom.com/JVMInternals.html
 

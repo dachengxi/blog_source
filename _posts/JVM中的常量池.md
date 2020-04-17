@@ -13,7 +13,7 @@ JVM中的常量池有：运行时常量池、Class文件常量池、字符串常
 
 可以先看下JVM运行时数据区域图：
 
-![JVM内部结构](JVM_Internal_Architecture.png)
+![JVM内部结构](./JVM中的常量池/JVM_Internal_Architecture.png)
 
 图片来自：https://blog.jamesdbloom.com/JVMInternals.html
 
