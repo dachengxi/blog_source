@@ -1,5 +1,5 @@
 ---
-title: JVM中的方法区、永久代以及Metaspace
+title: JVM中的程序计数器
 date: 2017-07-16 15:40:55
 categories: 
 	- JVM
