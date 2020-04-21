@@ -211,3 +211,70 @@ descriptor_index是对常量池项的引用，表示字段和方法的描述符�
 
 # 方法表集合
 
+method_info方法表集合：
+
+| 类型           | 名称             | 数量             |
+| -------------- | ---------------- | ---------------- |
+| u2             | access_flags     | 1                |
+| u2             | name_index       | 1                |
+| u2             | descriptor_index | 1                |
+| u2             | attributes_count | 1                |
+| attribute_info | attributes       | attributes_count |
+
+## access_flags
+
+![method_access_flags](./JVM中的Class类文件结构/method_access_flags.png)
+
+方法的代码经过编译器编译成字节码指令后，存放在方法属性表集合中的Code属性里。
+
+如果父类方法在子类没有被重写，方法表中不会出现来自父类的方法信息。
+
+可能会出现编译器自动添加的方法，比如类构造器`<clinit>`和实例构造器`<init>`。
+
+# 属性表集合
+
+属性表集合图：
+
+![attribute_info-1](./JVM中的Class类文件结构/attribute_info_1.png)
+
+![attribute_info-2](./JVM中的Class类文件结构/attribute_info_2.png)
+
+属性表结构：
+
+| 类型 | 名称                 | 数量             |
+| ---- | -------------------- | ---------------- |
+| u2   | attribute_name_index | 1                |
+| u4   | attribute_length     | 1                |
+| u1   | info                 | attribute_length |
+
+- attribute_name_index，名称指向常量池中的一个CONSTANT_Utf8_info类型的常量。
+- attribute_length，存储属性值占用的位数。
+
+## Code属性
+
+方法里面的代码经过编译器编译成字节码后，存储在Code属性里。Code属性出现在方法表的属性集合中，接口或者抽象类中的方法不存在Code属性。
+
+Code属性结构：
+
+| 类型           | 名称                   | 数量                   |
+| -------------- | ---------------------- | ---------------------- |
+| u2             | attribute_name_index   | 1                      |
+| u4             | attribute_length       | 1                      |
+| u2             | max_stack              | 1                      |
+| u2             | max_locals             | 1                      |
+| u4             | code_length            | 1                      |
+| u1             | code                   | code_length            |
+| u2             | exception_table_length | 1                      |
+| exception_info | exception_table        | exception_table_length |
+| u2             | attributes_count       | 1                      |
+| attribute_info | attributes             | attributes_count       |
+
+- attribute_name_index，指向CONSTANT_Utf8_info类型的常量索引，固定为“Code”，表示该属性的属性名称。
+- attribute_length，属性值的长度
+- max_stack，操作数栈深度的最大值
+- max_locals，局部变量表需要的存储空间，单位是：变量槽Slot。byte、char、float、int、short、boolean、returnAddress占用一个变量槽，double和long需要两个变量槽。方法参数（包括this）、显式异常处理程序的参数（catch中定义的异常）、方法体中的局部变量等都需要依赖局部变量表来存放。
+- code_length，字节码长度
+- code，存储编译后生成的字节码
+
+### 异常表集合
+
