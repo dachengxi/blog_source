@@ -278,3 +278,209 @@ Code属性结构：
 
 ### 异常表集合
 
+异常表属性结构：
+
+| 类型 | 名称       | 数量 |
+| ---- | ---------- | ---- |
+| u2   | start_pc   | 1    |
+| u2   | end_pc     | 1    |
+| u2   | handler_pc | 1    |
+| u2   | catch_type | 1    |
+
+- start_pc，从第start_pc行开始
+- end_pc，到第end_pc行，不包含end_pc行
+- handler_pc，转到第handler_pc行继续处理
+- catch_type，出现了catch_type或子类的异常，catch_type指向一个CONSTANT_Class_info类型的常量索引
+
+## Exceptions属性
+
+Exceptions，出现在方法表的属性集合中，用来列举出方法中可能抛出的受检查的异常，就是方法描述在throws后见列举的异常。
+
+| 类型 | 名称                  | 数量                 |
+| ---- | --------------------- | -------------------- |
+| u2   | attribute_name_index  | 1                    |
+| u4   | attribute_length      | 1                    |
+| u2   | number_of_exceptions  | 1                    |
+| u2   | exception_index_table | number_of_exceptions |
+
+- number_of_exceptions，表示方法可能抛出number_of_exceptions个异常，每一个异常使用exception_index_table项表示
+- exception_index_table，指向一个常量池中CONSTANT_Class_info型常量的索引
+
+## LineNumberTable属性
+
+LineNumberTable用于描述Java源码行号与字节码行号对应关系
+
+| 类型             | 名称                     | 数量                     |
+| ---------------- | ------------------------ | ------------------------ |
+| u2               | attribute_name_index     | 1                        |
+| u4               | attribute_length         | 1                        |
+| u2               | line_number_table_length | 1                        |
+| line_number_info | line_number_table        | line_number_table_length |
+
+- line_number_info表中包含start_pc和line_number两个u2类型的数据项，start_pc是字节码行号，line_number是Java源码行号
+
+## LocalVariableTable属性
+
+LocalVariableTable用于描述栈帧中局部变量表的变量与Java源码中定义的变量间的关系。
+
+| 类型                | 名称                        | 数量                        |
+| ------------------- | --------------------------- | --------------------------- |
+| u2                  | attribute_name_index        | 1                           |
+| u4                  | attribute_length            | 1                           |
+| u2                  | local_variable_table_length | 1                           |
+| local_variable_info | local_variable_table        | local_variable_table_length |
+
+- local_variable_info，代表了栈帧与源码中的局部变量的关联
+
+### local_variable_info
+
+| 类型 | 名称             | 数量 |
+| ---- | ---------------- | ---- |
+| u2   | start_pc         | 1    |
+| u2   | length           | 1    |
+| u2   | name_index       | 1    |
+| u2   | descriptor_index | 1    |
+| u2   | index            | 1    |
+
+- start_pc，局部变量的生命周期开始的字节码偏移量
+- length，局部变量生命周期作用范围覆盖长度
+- name_index，指向常量池CONSTANT_Utf8_info类型常量索引，表示局部变量名称
+- descriptor_index，指向常量池CONSTANT_Utf8_info类型常量索引，表示局部变量的描述符
+- index，是局部变量在栈帧的局部变量表中变量槽的位置
+
+## LocalVariableTypeTable
+
+和LocalVariableTable相似，仅仅把记录的字段描述符的descriptor_index替换成了字段的特征签名Signature。
+
+非泛型类型，描述符和特征签名描述的信息是一致的。泛型类型，描述符中的参数化类型被擦除掉，描述符不能准确描述泛型类型，就出现了LocalVariableTypeTable属性，使用字段的特征签名来完成泛型的描述
+
+## SourceFile
+
+SourceFile用于记录生成这个Class文件的源码文件名称。
+
+| 类型 | 名称                 | 数量 |
+| ---- | -------------------- | ---- |
+| u2   | attribute_name_index | 1    |
+| u4   | attribute_length     | 1    |
+| u2   | sourcefile_index     | 1    |
+
+- sourcefile_index，指向常量池中CONSTANT_Utf8_info类型常量索引，是源码文件名
+
+## SourceDebugExtension
+
+SourceDebugExtension，用来存储额外的代码调试信息。
+
+| 类型 | 名称                              | 数量 |
+| ---- | --------------------------------- | ---- |
+| u2   | attribute_name_index              | 1    |
+| u4   | attribute_length                  | 1    |
+| u1   | debug_extension[attribute_length] | 1    |
+
+- debug_extension，存储的是额外的调试信息，通过一组变长UTF-8格式来表示的字符串，一个类最多只有一个SourceDebugExtension属性。
+
+## ConstantValue属性
+
+ConstantValue用来通知虚拟机自动为静态变量赋值，static修饰的变量可以使用这个属性。
+
+实例变量赋值是在实例构造器`<init>`中进行，类变量有两种方式：在类构造器`<clinit>`方法中或者使用ConstantValue属性。
+
+Oracle的编译器是：如果是final static修饰，也就是一个常量，并且类型是基本类型或者是String类型，就会使用ConstantValue来进行初始化；如果没有被final修饰，或者类型非基本类型以及字符串，会选择在`<clinit>`方法中进行初始化。
+
+| 类型 | 名称                 | 数量 |
+| ---- | -------------------- | ---- |
+| u2   | attribute_name_index | 1    |
+| u4   | attribute_length     | 1    |
+| u2   | constantvalue_index  | 1    |
+
+- attribute_length，固定为2
+- constant_value，表示常量池中个一个字面量的引用，根据字段类型不同，字面量可以是：CONSTANT_Long_info、CONSTANT_Float_info、CONSTANT_Double_info、CONSTANT_Integer_info、CONSTANT_String_info
+
+## InnerCalsses属性
+
+InnerClasses属性记录内部类和宿主类之间的关联，属性结构：
+
+| 类型               | 名称                 | 数量              |
+| ------------------ | -------------------- | ----------------- |
+| u2                 | attribute_name_index | 1                 |
+| u4                 | attribute_length     | 1                 |
+| u2                 | number_of_classes    | 1                 |
+| inner_classes_info | inner_classes        | number_of_classes |
+
+inner_classes_info代表每个内部类信息
+
+### inner_classes_info
+
+| 类型 | 名称                     | 数量 |
+| ---- | ------------------------ | ---- |
+| u2   | inner_class_info_index   | 1    |
+| u2   | outer_class_info_index   | 1    |
+| u2   | inner_name_index         | 1    |
+| u2   | inner_class_access_flags | 1    |
+
+- inner_class_info_index，指向常量池CONSTANT_Class_info类型常量索引，代表内部类的符号引用
+- outer_class_info_index，指向常量池CONSTANT_Class_info类型常量索引，代表外部类的符号引用
+- inner_name_index，指向常量池CONSTANT_Utf8_info类型常量索引，代表内部类名称，匿名内部类为0
+- inner_class_access_flags，内部类的访问标志
+
+![inner_class_access_flags](./JVM中的Class类文件结构/inner_class_access_flags.png)
+
+## Deprecated属性
+
+Deprecated是布尔类型属性，表示某个类、字段、方法已经被标记为不推荐使用
+
+| 类型 | 名称                 | 数量 |
+| ---- | -------------------- | ---- |
+| u2   | attribute_name_index | 1    |
+| u4   | attribute_length     | 1    |
+
+- attribute_length为0x00000000，因为没有任何属性值需要设置
+
+## Synthetic属性
+
+Synthetic属性表示字段或方法不是由Java源码直接产生，而是编译器自行添加的。最典型的例子就是枚举类中自动生成的枚举元素数组和嵌套类的桥接方法。
+
+| 类型 | 名称                 | 数量 |
+| ---- | -------------------- | ---- |
+| u2   | attribute_name_index | 1    |
+| u4   | attribute_length     | 1    |
+
+- attribute_length为0x00000000，因为没有任何属性值需要设置
+
+## Signature属性
+
+Signature在JDK5中增加，是一个可选定长属性，用于类、字段表、方法表结构的属性表中。用来记录泛型签名信息，Java泛型采用擦除法实现伪泛型，字节码Code属性中没有泛型信息。
+
+| 类型 | 名称                 | 数量 |
+| ---- | -------------------- | ---- |
+| u2   | attribute_name_index | 1    |
+| u4   | attribute_length     | 1    |
+| u2   | signature_index      | 1    |
+
+- signature_index必须是对一个常量池的有效索引，并且该索引是CONSTANT_Utf8_info结构，表示类签名或方法类型签名或字段类型签名。
+
+## MethodParameters属性
+
+MethodParameters在JDK8新加入的，用在方法表中的变长属性，记录方法的各个形参名称和信息。
+
+| 类型      | 名称                 | 数量             |
+| --------- | -------------------- | ---------------- |
+| u2        | attribute_name_index | 1                |
+| u4        | attribute_length     | 1                |
+| u1        | parameters_count     | 1                |
+| parameter | parameters           | parameters_count |
+
+parameter属性结构：
+
+| 类型 | 名称         | 数量 |
+| ---- | ------------ | ---- |
+| u2   | name_index   | 1    |
+| u4   | access_flags | 1    |
+
+- name_index指向常量池CONSTANT_Utf8_info类型的索引值，表示参数名称。
+- access_flags，参数的状态，包含：ACC_FIANL被final修饰、ACC_SYNTHETIC编译器自动生成、ACC_MANDATED表示该参数是在源文件中隐式定义，比如this关键字。
+
+## 运行时注解属性
+
+JDK1.5：RuntimeVisibleAnnotations、RuntimeInvisibleAnnotations、RuntimeVisibleParameterAnnotations、RuntimeInvisibleParameterAnnotations用来存储源码中注解信息
+
+JDK1.8：RuntimeVisibleTypeAnnotations、RuntimeInvisibleTypeAnnotations，用来存储源码中类型注解信息
