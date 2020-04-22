@@ -4,7 +4,6 @@ date: 2020-03-19 22:32:11
 categories: 
 	- dubbo
 tags:
-	- dubbo架构
 	- dubbo
 ---
 分析总结一下Dubbo的架构，通过对Dubbo、RocketMQ、Tair等架构的类比，从整体上来理解一般分布式框架、应用的组成。
@@ -14,7 +13,7 @@ tags:
 
 Dubbo在日常开发中我们应该是接触的最多的一个框架，它的组成我们最熟悉的应该就是三部分：Provider、Consumer、Registry。以下是官方的架构图：
 
-![Dubbo Architecture](dubbo-architecture.jpg)
+![Dubbo Architecture](./Dubbo架构简单理解/dubbo-architecture.jpg)
 
 使用的时候，第一步我们要启动注册中心。注册中心用来注册服务、发现服务，充当着整个系统的中心点，提供指挥或者导航的作用。
 
@@ -30,7 +29,7 @@ Dubbo在日常开发中我们应该是接触的最多的一个框架，它的组
 
 我们再看下Tair的架构，最重要的也是三个：ConfigServer、DataServer、Client。下面是架构图：
 
-![Tair Architecture](tair-architecture.jpg)
+![Tair Architecture](./Dubbo架构简单理解/tair-architecture.jpg)
 
 其中ConfigServer就是类似传统应用系统的中心节点，DataServer会保持和ConfigServer的心跳，ConfigServer知道DataServer的信息。Client会到ConfigServer中获取DataServer信息，然后才能知道要去哪里找数据。
 
@@ -40,7 +39,7 @@ Dubbo在日常开发中我们应该是接触的最多的一个框架，它的组
 
 接下来看看RocketMQ的架构设计，它由四部分组成：NameServer、Broker、Producer、Consumer，以下是架构图：
 
-![RocketMQ Architecture](rocketmq-architecture.jpg)
+![RocketMQ Architecture](./Dubbo架构简单理解/rocketmq-architecture.jpg)
 
 这里NameServer用来管理Broker，Producer和Consumer从NameServer中获取Broker的信息，整体的逻辑和上面Dubbo以及Tair类似。NameServer这次不是采用主备这种带有等级意义的关系，而是采用平等关系，Broker向所有的NameServer注册，而Producer和Consumer则选择其中一台NameServer进行通信，因为NameServer上存储的信息都一样。
 
