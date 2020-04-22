@@ -58,7 +58,7 @@ struct zskiplistNode {
 }
 ```
 
-![1585626630351](zskiplist-1.png)
+![1585626630351](./Redis跳表/zskiplist-1.png)
 
 zskiplist：
 

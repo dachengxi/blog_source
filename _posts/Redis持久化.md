@@ -53,7 +53,7 @@ Redis服务器会周期性的每隔100ms检查，如果条件满足了，就会�
 
 ## RDB文件结构
 
-![RDB-1](RDB-1.png)
+![RDB-1](./Redis持久化/RDB-1.png)
 
 - REDIS，用来快速检查载入的文件是否是RDB文件
 - db_verson，记录了RDB文件版本号。

@@ -13,4 +13,4 @@ tags:
 
 下面是导出的图片：
 
-![Sping中扩展点汇总](SpringExtension.png)
+![Sping中扩展点汇总](./Spring中扩展点汇总/SpringExtension.png)

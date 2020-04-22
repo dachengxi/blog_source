@@ -12,4 +12,4 @@ tags:
 
 以下是画的思维导图，这里是processon的源文件：[MyBatis执行流程.pos](MyBatis.pos)，可以自行导入。
 
-![MyBatis执行流程](MyBatis.png)
+![MyBatis执行流程](./MyBatis执行流程图解/MyBatis.png)

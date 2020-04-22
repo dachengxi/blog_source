@@ -12,7 +12,7 @@ tags:
 
 MyBatis整体上分为三层：接口层、核心处理层、基础支持层：
 
-![Mybatis整体架构设计](mybatis-1.png)
+![Mybatis整体架构设计](./MyBatis整体架构设计/mybatis-1.png)
 
 图片源自《MyBatis技术内幕》
 

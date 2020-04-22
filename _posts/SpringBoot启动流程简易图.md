@@ -15,5 +15,5 @@ tags:
 
 下面是导出的图片：
 
-![SpingBoot启动流程图](SpringBootStartup.png)
+![SpingBoot启动流程图](./SpringBoot启动流程简易图/SpringBootStartup.png)
 

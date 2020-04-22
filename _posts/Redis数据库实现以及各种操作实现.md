@@ -29,7 +29,7 @@ redisServer {
 
 服务器数据库示例：
 
-![server-1](server-1.png)
+![server-1](./Redis数据库实现以及各种操作实现/server-1.png)
 
 # 数据库键空间
 
@@ -50,7 +50,7 @@ redisDb {
 
 键空间示例：
 
-![keyspace-1](keyspace-1.png)
+![keyspace-1](./Redis数据库实现以及各种操作实现/keyspace-1.png)
 
 - 添加新键：将新键值添加到键空间字典里面。
 - 删除键：在键空间里面删除键所对应的键值对对象。

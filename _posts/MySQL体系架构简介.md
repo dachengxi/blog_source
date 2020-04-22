@@ -13,7 +13,7 @@ MySQL逻辑架构可以分为三层：应用层、MySQL服务层、存储引擎�
 
 MySQL架构体系如图：
 
-![MySQL-Architecture](MySQL-Architecture.png)
+![MySQL-Architecture](./MySQL体系架构简介/MySQL-Architecture.png)
 
 - 连接池组件
 - 管理服务和工具组件

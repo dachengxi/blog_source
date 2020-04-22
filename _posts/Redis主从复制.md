@@ -48,7 +48,7 @@ Redis中复制分为：初次复制和断线后复制。旧版复制功能在断
 
 # PSYNC命令的实现
 
-![PSYNC-1](PSYNC-1.png)
+![PSYNC-1](./Redis主从复制/PSYNC-1.png)
 
 # 参考
 

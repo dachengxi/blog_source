@@ -24,7 +24,7 @@ Redis集群通过分片方式保存数据库中的键值对，集群的整个数
 - 如果键对应的槽属于自己，直接执行命令。
 - 如果键对应的槽属于其他节点，会向客户端返回MOVED错误，指引客户端转向redirect到正确的节点，并再次发送要执行的命令。
 
-![cluster-1](cluster-1.png)
+![cluster-1](./Redis集群Cluster/cluster-1.png)
 
 # 重新分片
 

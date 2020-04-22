@@ -40,9 +40,9 @@ tags:
 
 服务提供者接收到请求后，会进行反序列化和Decodec解码，然后从线程池中获取一个线程交给具体的Server（比如Netty)进行处理，然后会交给具体的Protocol（比如Dubbo）来根据参数获取具体的Exporter，继续执行一系列的过滤器链，然后使用ProxyFactory来获取具体的Invoker（比如Dubbo），Invoker就会调用真正的服务实现类，然后将结果返回。
 
-![invoke](dubbo-extension.jpg)
+![invoke](./Dubbo启动以及服务调用的过程总结/dubbo-extension.jpg)
 
-![invoke](dubbo-invoke.png)
+![invoke](./Dubbo启动以及服务调用的过程总结/dubbo-invoke.png)
 
 processon源文件：[dubbo-invoke.pos](dubbo-invoke.pos)
 

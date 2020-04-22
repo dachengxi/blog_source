@@ -15,7 +15,7 @@ APIGateway的设计文档，包括整体架构和数据库设计。
 
 使用draw io画的图，这里是源文件：[APIGateway整体架构](APIGateway整体架构.drawio)
 
-![APIGateway整体架构](APIGateway整体架构.png)
+![APIGateway整体架构](./APIGateway设计文档/APIGateway整体架构.png)
 
 - 调用方，手机端、接入方等等一系列调用方
 - LVS负载均衡
@@ -48,7 +48,7 @@ APIGateway的设计文档，包括整体架构和数据库设计。
 
 使用draw io画的图，这里是源文件：[APIGateway数据库设计](APIGateway数据库设计.drawio)
 
-![APIGateway数据库设计](APIGateway数据库设计.png)
+![APIGateway数据库设计](./APIGateway设计文档/APIGateway数据库设计.png)
 
 ## agw_api
 
