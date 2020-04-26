@@ -1,13 +1,11 @@
 ---
-title: RocketMQ中的消息存储
+title: Kafka概要
 date: 2018-05-01 20:49:13
 categories: 
 	- MQ
 tags:
 	- Kafka
 ---
-
-。
 
 初识Kafka。
 
@@ -66,3 +64,14 @@ Kafka保证同一partition的多个replica一定不会分配在同一台broker�
 ISR是in-sync replica，与leader replica保持同步的replica集合。Kafka为partition动态维护一个replica，该集合中所有replica保存的消息日志都与leader replica保持同步，只有这个集合中的replica才能被选举为leader，只有该集合中所有replica都接到了同一条消息，Kafka才会认为消息是已提交状态，也就是消息发送成功。
 
 如果replica落后于leader replica的进度，当达到一定程度时，Kaffka会将这些replica踢出ISR，当这些replica追上了leader进度时，Kafka会将他们加入到ISR中。
+
+# 使用场景
+
+适合处理生产环境中流式数据：
+
+- 消息传输
+- 网站行为日志追踪
+- 审计数据收集
+- 日志收集
+- Event Sourcing
+- 流式处理
