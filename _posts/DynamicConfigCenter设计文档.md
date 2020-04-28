@@ -84,4 +84,4 @@ draw io源文件：[DynamicConfigCenter数据库设计](DynamicConfigCenter数�
 
 # Zookeeper节点
 
-数据节点：`/cxis/dcc/${group_name}/${env}/key`
+数据节点：`/cxis/dcc/${group_name}/key`
