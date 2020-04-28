@@ -59,16 +59,16 @@ draw io源文件：[DynamicConfigCenter数据库设计](DynamicConfigCenter数�
 
 ## dcc_config
 
-| 名称          | 类型         | 是否为空 | 索引    | 默认值 | 备注     |
-| ------------- | ------------ | -------- | ------- | ------ | -------- |
-| id            | bigint(20)   | N        | PRIMARY |        | 主键ID   |
-| created_time  | datetime     | N        |         |        | 创建时间 |
-| modified_time | datetime     | N        |         |        | 修改时间 |
-| version       | smallint(6)  | N        |         |        | 版本号   |
-| key           | varchar(255) | N        |         |        | 配置key  |
-| type          | smallint(6)  | N        |         |        | 类型     |
-| desc          | varchar(255) | N        |         |        | 描述     |
-| group_id      | bigint(20)   | N        |         |        | 所属组id |
+| 名称          | 类型         | 是否为空 | 索引    | 默认值 | 备注                          |
+| ------------- | ------------ | -------- | ------- | ------ | ----------------------------- |
+| id            | bigint(20)   | N        | PRIMARY |        | 主键ID                        |
+| created_time  | datetime     | N        |         |        | 创建时间                      |
+| modified_time | datetime     | N        |         |        | 修改时间                      |
+| version       | smallint(6)  | N        |         |        | 版本号                        |
+| key           | varchar(255) | N        |         |        | 配置key                       |
+| type          | smallint(6)  | N        |         |        | 类型 1-String 2-Number 3-Json |
+| desc          | varchar(255) | N        |         |        | 描述                          |
+| group_id      | bigint(20)   | N        |         |        | 所属组id                      |
 
 ## dcc_config_inst
 
