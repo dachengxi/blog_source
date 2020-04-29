@@ -48,7 +48,7 @@ Zookeeper中所有的读操作都可以设置监听：getData()、getChildren()�
 ## Listener
 
 - ConnectionStateListener，连接状态监听器
-- CuratorListener，主要针对background异步通知和一些错误通知，配合inBackground使用，节点的创建或修改不会触发该监听事件
+- CuratorListener，主要针对background异步通知和一些错误通知，配合inBackground使用
 - NodeCacheListener，配合NodeCache使用
 - PathChildrenCacheListener，配合PathChildrenCache使用
 - TreeCacheListener，配合TreeCache使用
