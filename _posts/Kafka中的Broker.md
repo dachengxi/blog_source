@@ -66,3 +66,12 @@ Kafka支持自动化服务发现和成员管理，是基于Zookeeper实现，当
 
 # 副本和ISR
 
+Kafka分区本质上是一个备份日志，利用多份相同的备份共同提供冗余机制来保持系统高可用性。这些备份称为副本replica。
+
+Kafka把分区所有副本均匀的分配到所有broker上，并从这个副本中挑选一个作为leader副本对外提供服务，其他副本称为follower副本，只能被动向leader副本请求数据，保持和leader的同步。
+
+ISR，in-sync replicas，是Kafka集群动态维护的一组同步副本集合，每个topic分区都有自己的ISR列表，ISR中的所有副本都于leader保持同步状态，leader副本总是包含在ISR中的，只有ISR中的副本才有资格被选举为leader。Producer写入的一条消息只有被ISR中所有副本都接收到，才被视为已提交状态。
+
+# 参考
+
+- Apache kafka实战
