@@ -7,8 +7,6 @@ tags:
 	- Kafka
 ---
 
-初识Kafka。
-
 Kafka的Broker学习。
 
 <!--more-->

@@ -20,6 +20,20 @@ Kafka设计初衷是为了解决互联网公司超大量级数据的实时传输
 
 # 基本概念
 
+- Zookeeper集群，kafka用Zookeeper来负责集群元数据管理、控制器的选举等操作
+- Producer，生产者，负责创建消息，投递到Kafka中
+- Consumer，消费者，消费消息，连接到Kafka接收消息
+- Broker，服务代理节点，负责存储消息
+- Topic，消息以主题为单位归类，是一个逻辑概念，代表一类消息，通常可使用topic来区分实际业务。 topic通常会被多个消费者订阅。
+- Partition，分区，主题是逻辑概念，可以细分为多个分区，一个分区只属于单个主题。同一主题下的不同分区包含消息是不同的，partition是不可修改的有序消息序列。用户对partition唯一能做的操作就是在消息序列尾部追加写入消息。partition上的每条消息都会被分配一个唯一的序列号，叫做位移offset
+- Offset，topic的partition下每条消息都被分配一个唯一的offset，消费端也有offset概念，用来表示消费partition的消费进度。
+- Replica，Kafka的备份日志称为副本replica，防止数据丢失。副本分为两类：领导者副本leader replica和追随者副本follower replica。follower replica不负责响应客户端发来的消息写入和消费者请求，只是被动的向leader replica获取数据。leader replica所在broker宕机时，Kafka会从剩余的replica中选举新的leader继续提供服务
+- Leader，leader对外提供服务
+- Follower，follower被动追随leader状态，保持与leader同步，当做leader后备。leader挂掉后就会有一个follower备选举成新的leader。
+- ISR，ISR是in-sync replica，与leader replica保持同步的replica集合。Kafka为partition动态维护一个replica，该集合中所有replica保存的消息日志都与leader replica保持同步，只有这个集合中的replica才能被选举为leader，只有该集合中所有replica都接到了同一条消息，Kafka才会认为消息是已提交状态，也就是消息发送成功。如果replica落后于leader replica的进度，当达到一定程度时，Kaffka会将这些replica踢出ISR，当这些replica追上了leader进度时，Kafka会将他们加入到ISR中。
+- HW，Hight Watermark，高水位，标识了一个特定的消息偏移量，消费者只能拉取到这个offset之前的消息
+- LEO，Log End Offset，标识当前日志文件中下一条待写入消息的offset
+
 ## 消息
 
 消息由消息头部、key、value组成：
@@ -35,36 +49,6 @@ Kafka设计初衷是为了解决互联网公司超大量级数据的实时传输
 
 Kafka使用紧凑的二进制字节数组来保存消息，没有多余的比特位浪费。
 
-## topic和partition
-
-topic是一个逻辑概念，代表一类消息，通常可使用topic来区分实际业务。 topic通常会被多个消费者订阅。
-
-Kafka采用topic-partition-message三级结构来分散负载。topic由多个partition组成，partition是不可修改的有序消息序列。用户对partition唯一能做的操作就是在消息序列尾部追加写入消息。
-
-partition上的每条消息都会被分配一个唯一的序列号，叫做位移offset。
-
-## offset
-
-topic的partition下每条消息都被分配一个唯一的offset，消费端也有offset概念，用来表示消费partition的消费进度。
-
-## replica
-
-Kafka的备份日志成为副本replica，防止数据丢失。副本分为两类：领导者副本leader replica和追随者副本follower replica。
-
-follower replica不负责响应客户端发来的消息写入和消费者请求，只是被动的向leader replica获取数据。leader replica所在broker宕机时，Kafka会从剩余的replica中选举新的leader继续提供服务
-
-## leader和follower
-
-leader对外提供服务，follower被动追随leader状态，保持与leader同步，当做leader后备。leader挂掉后就会有一个follower备选举成新的leader。
-
-Kafka保证同一partition的多个replica一定不会分配在同一台broker上。
-
-## ISR
-
-ISR是in-sync replica，与leader replica保持同步的replica集合。Kafka为partition动态维护一个replica，该集合中所有replica保存的消息日志都与leader replica保持同步，只有这个集合中的replica才能被选举为leader，只有该集合中所有replica都接到了同一条消息，Kafka才会认为消息是已提交状态，也就是消息发送成功。
-
-如果replica落后于leader replica的进度，当达到一定程度时，Kaffka会将这些replica踢出ISR，当这些replica追上了leader进度时，Kafka会将他们加入到ISR中。
-
 # 使用场景
 
 适合处理生产环境中流式数据：
@@ -75,3 +59,8 @@ ISR是in-sync replica，与leader replica保持同步的replica集合。Kafka为
 - 日志收集
 - Event Sourcing
 - 流式处理
+
+# 参考
+
+- Apache kafka实战
+- 深入理解Kafka：核心设计与实践原理
