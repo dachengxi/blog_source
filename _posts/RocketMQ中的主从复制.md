@@ -1,5 +1,5 @@
 ---
-title: RocketMQ中的消息存储
+title: RocketMQ中的主从复制
 date: 2018-01-20 15:30:51
 categories: 
 	- MQ
