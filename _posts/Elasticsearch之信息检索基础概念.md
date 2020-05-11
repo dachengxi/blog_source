@@ -1,5 +1,5 @@
 ---
-title: Elasticsearch基础概念介绍
+title: Elasticsearc之信息检索基础概念
 date: 2018-06-16 13:56:43
 categories: 
 	- Elasticsearch
