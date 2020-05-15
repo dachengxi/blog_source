@@ -55,6 +55,14 @@ Query查询，有很多子类：TermQuery、BooleanQuery、PhraseQuery、PrefixQ
 
 是一个简单的指针容器，指针一般指向前N个排名的搜索结果。
 
+## ScoreDoc
+
+提供对TopDocs中每条搜索结果的访问接口
+
+## QueryParser
+
+将用户输入的查询表达式处理成具体的Query对象
+
 # 参考
 
 - Lucene实战
