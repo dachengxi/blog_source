@@ -43,7 +43,7 @@ write.lock
 - segments_1，段文件，保存了现有索引段的名称以及相关信息，每当IndexWriter向索引提交修改之前，段文件的值会增加1。在访问索引目录中任何文件前，Lucene都会查找该段文件，以确认要打开和读入的索引文件
 - write.lock，锁文件，可防止多个IndexWriter同时操作同一个索引文件
 - .si，Segment Info，保存Segment的元数据信息
-- .fnm，Fields，保存fields的相关信息
+- .fnm，Fields，保存fields的相关信息，包括：是否已被索引、是否允许使用项向量、是否存储norms、是否包含有效负载
 - .fdx，Field Index，保存指向Field Data的指针
 - .fdt，Field Data，文档中存储的Field的值
 - .tim，Term Directory，存储Term信息
