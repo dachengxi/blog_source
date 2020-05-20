@@ -7,10 +7,6 @@ tags:
 	- LogCollector
 ---
 
-
-
-。
-
 LogCollector的模块和整体架构。
 
 <!--more-->
