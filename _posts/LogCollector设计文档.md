@@ -11,8 +11,8 @@ LogCollector的模块和整体架构。
 
 <!--more-->
 
-- LogCollector-client，需要应用依赖此库，用来收集日志等信息转发到localAgent上
-- LogCollector-localAgent，作为Kafka的消息发送端，将接收到的日志发送到server上
+- LogCollector-client，需要应用依赖此库，用来收集JVM等日志信息转发到localAgent上
+- LogCollector-localAgent，作为Kafka的消息发送端，将接收到的日志发送到server上、监听日志文件收集日志文件发送到Kafka
 - LogCollector-server，处理收到的消息，可进行业务处理和分析，存储到Elasticsearch中
 
 # 整体架构
