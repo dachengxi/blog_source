@@ -1,6 +1,6 @@
 ---
 title: LogCollector中JMX的应用
-date: 2020-05-24 15:32:57
+date: 2010-05-24 15:32:57
 categories: 
 	- LogCollector
 tags:

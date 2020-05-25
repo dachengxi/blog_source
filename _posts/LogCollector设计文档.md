@@ -1,6 +1,6 @@
 ---
 title: LogCollector设计文档
-date: 2020-05-20 17:30:52
+date: 2010-05-20 17:30:52
 categories: 
 	- LogCollector
 tags:
