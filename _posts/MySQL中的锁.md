@@ -70,9 +70,23 @@ InnoDB意向锁是InnoDB引擎自动加的，不需要用户显式指定。updat
 - 防止幻读
 - 满足恢复和复制需要
 
-MySQL通过binlog记录更新的sql语句，slave机器基于binlog进行同步，重新执行binlog中的sql语句，binlog中的sql语句是按照事务提交的先后顺序记录，恢复的时候也是按照这个顺序进行，在一个事务未提交之前，其他并发事务不能插入满足其锁定条件的任何记录，不允许出现幻读
+MySQL通过binlog记录更新的sql语句，slave机器基于binlog进行同步，重新执行binlog中的sql语句，binlog中的sql语句是按照事务提交的先后顺序记录，恢复的时候也是按照这个顺序进行，在一个事务未提交之前，其他并发事务不能插入满足其锁定条件的任何记录，不允许出现幻读。
+
+# 锁算法
+
+- Record Lock，记录锁，锁定一个行记录
+- Gap Lock，间隙锁，锁定一个区间
+- Next-key Lock，记录锁+间隙锁，锁定区间和行记录
+
+InnoDB的Repeatable Read隔离级别下的等值查询锁算法示例：
+
+- 主键索引（聚簇索引），对主键索引记录加记录锁
+- 唯一索引，对辅助索引加记录锁，对主键索引也加记录锁
+- 普通索引，对相关的辅助索引加Next-key Lock，对对应的主键索引加记录锁
+- 不使用索引，对全表加Next-key Lock
 
 # 参考
 
 - [https://zhuanlan.zhihu.com/p/29150809](https://zhuanlan.zhihu.com/p/29150809)
 - [https://juejin.im/post/5b85124f5188253010326360](https://juejin.im/post/5b85124f5188253010326360)
+- [https://segmentfault.com/a/1190000014133576](https://segmentfault.com/a/1190000014133576)
