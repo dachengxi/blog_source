@@ -35,7 +35,7 @@ InnoDB默认的事务隔离级别Repeatable Read，读操作是快照读，如�
 
 # MVCC
 
-MVCC：多版本并发控制，读不加任何锁，读写不冲突，多操作多于写操作的应用可极大增加系统并发性能。只在Repeatable Read和Read Committed两个隔离级别下工作。
+MVCC：多版本并发控制，用来解决读写冲突的无锁并发控制，读不加任何锁，读写不冲突，多操作多于写操作的应用可极大增加系统并发性能。只在Repeatable Read和Read Committed两个隔离级别下工作。
 
 InnoDB默认隔离级别Repeatable Read的不加锁的读操作是快照读，使用MVCC实现。
 
@@ -48,8 +48,18 @@ Repeatable Read隔离级别下的MVCC操作：
 - delete操作，InnoDB为删除的每一行保存当前系统版本号为行删除标识
 - update操作，InnoDB会插入一行新纪录，保存当前系统版本号为新行版本号，同时将当前系统版本号作为原来行的行删除标识
 
+MVCC只在Read Committed和Repeatable Read两个隔离级别下工作，Read Uncommitted读取的总是最新的数据行，Serializable会对所有读取行加共享锁。
+
+# MySQL的MVCC
+
+InnoDB默认隔离级别是Repeatable Read，通过MVCC解决了不可重复读。使用间隙锁解决幻读。
+
+不可重复读发生是因为读和写没有互斥，如果使用读写互斥，又会导致并发度降低，MVCC可解决读写互不阻塞和不可重复读问题。
+
 
 
 # 参考
 
 - [https://segmentfault.com/a/1190000014133576](https://segmentfault.com/a/1190000014133576)
+- [https://zhuanlan.zhihu.com/p/91208953](https://zhuanlan.zhihu.com/p/91208953)
+- [https://zhuanlan.zhihu.com/p/64576887](https://zhuanlan.zhihu.com/p/64576887)
