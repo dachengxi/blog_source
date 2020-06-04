@@ -12,6 +12,8 @@ MySQL的undo log和redo log学习。
 
 <!--more-->
 
+InnoDB引擎提供了两种事务日志：redo log和undo log。redo log用于保证事务的持久性，undo log是事务原子性和隔离性实现的基础。
+
 # undo log
 
 回滚日志保存了事务发生之前的数据的一个版本，可以用于回滚。undo log还可以提供一致性读（MVCC）。
@@ -42,3 +44,4 @@ redo log记录的是新数据的备份，事务提交之前只要将redo log持�
 
 - [https://www.cnblogs.com/wy123/p/8365234.html](https://www.cnblogs.com/wy123/p/8365234.html)
 - [https://yq.aliyun.com/articles/592937](https://yq.aliyun.com/articles/592937)
+- [https://www.cnblogs.com/kismetv/p/10331633.html](https://www.cnblogs.com/kismetv/p/10331633.html)
