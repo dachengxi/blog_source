@@ -13,7 +13,7 @@ RocketMQ Consumer启动流程学习。
 
 draw io源文件：[RocketMQ中Consumer启动流程.drawio](./RocketMQ中Consumer启动流程/RocketMQ中Consumer启动流程.drawio)
 
-
+![RocketMQ中Consumer启动流程](./RocketMQ中Consumer启动流程/RocketMQ中Consumer启动流程.png)
 
 # 参考
 

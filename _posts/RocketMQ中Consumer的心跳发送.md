@@ -36,7 +36,9 @@ Consumer和Broker保持长连接，Consumer会向Broker发送心跳信息，心�
 
 # draw io源文件和图片
 
-draw io源文件：[RocketMQ中Consumer的心跳发送.drawio](./RocketMQ中的心跳发送/RocketMQ中Consumer的心跳发送.drawio)
+draw io源文件：[RocketMQ中Consumer的心跳发送.drawio](./RocketMQ中Consumer的心跳发送/RocketMQ中Consumer的心跳发送.drawio)
+
+![RocketMQ中Consumer的心跳发送](./RocketMQ中Consumer的心跳发送/RocketMQ中Consumer的心跳发送.png)
 
 # 参考
 

@@ -17,7 +17,7 @@ rebalance场景：
 - DefaultMQPushConsumerImpl#start最后会调用MQClientInstance#rebalanceImmediately开始rebaplace
 - RebalanceService每隔20秒会执行一次rebalance
 
-
+draw io源文件[RocketMQ中Consumer的rebalance.drawio](./RocketMQ中Consumer的rebalance/RocketMQ中Consumer的rebalance.drawio)
 
 # 参考
 
