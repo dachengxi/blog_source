@@ -17,7 +17,7 @@ LogCollector的模块和整体架构。
 
 # 整体架构
 
-使用drawio画图，这是源文件：[LogCollector整体架构](./LogCollector设计文档/LogCollector整体架构.drawio)
+使用drawio画图，这是源文件：[LogCollector整体架构](LogCollector整体架构.drawio)
 
 ![](./LogCollector设计文档/LogCollector整体架构.png)
 
