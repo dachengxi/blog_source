@@ -363,19 +363,19 @@ Constant pool:
          // 获取#6指向的静态域configLoaderDelegate，并将其压入栈顶
          0: getstatic     #6                  // Field configLoaderDelegate:Lme/cxis/dcc/loader/ConfigLoaderDelegate;
 
-         // 不为null时跳转到38，38是获取#6指向的静态域configLoaderDelegate，并将其压入栈顶
+         // 栈顶数据出栈，判断栈顶引用是否为null，不为null时跳转到38，38是获取#6指向的静态域configLoaderDelegate，并将其压入栈顶
          3: ifnonnull     38
 
-         // 将#7从常量池中推送到栈顶
+         // 将#7从常量池中推送到栈顶，这个是锁对象
          6: ldc           #7                  // class me/cxis/dcc/loader/ConfigLoaderDelegate
         
-         // 复制栈顶数值，并将复制值压入栈顶
+         // 复制栈顶数值，并将复制值压入栈顶，这个是备份锁对象
          8: dup
         
-         // 将栈顶的引用推送到第二个本地变量槽
+         // 将栈顶的引用推送到第二个本地变量槽，将备份的锁对象放到本地变量表中
          9: astore_1
         
-        // 获得对象的锁, 用于同步方法或同步块
+        // 获得对象的锁, 用于同步方法或同步块，此时栈中的锁对象会出栈
         10: monitorenter
         
         // 获取#6指向的静态域configLoaderDelegate，并将其压入栈顶
@@ -390,7 +390,7 @@ Constant pool:
         // 复制栈顶数值，并将复制值压入栈顶
         20: dup
 
-        // 将第一个本地变量槽中的引用推送到栈顶
+        // 将第一个本地变量槽中的引用推送到栈顶，configLoader
         21: aload_0
 
         // invokespecial：调用父类构造方法、实例初始化方法、私有方法，也就是调用ConfigLoaderDelegate带参的构造方法
@@ -399,10 +399,10 @@ Constant pool:
         // 为指定类的静态域赋值，configLoaderDelegate域赋值刚才new的ConfigLoaderDelegate对象
         25: putstatic     #6                  // Field configLoaderDelegate:Lme/cxis/dcc/loader/ConfigLoaderDelegate;
 
-        // 将第二个本地变量槽中的引用推送到栈顶，引用是ConfigLoaderDelegate
+        // 将第二个本地变量槽中的引用推送到栈顶，引用是ConfigLoaderDelegate，就是锁对象的备份
         28: aload_1
 
-        // 释放对象的锁, 用于同步方法或同步块
+        // 释放对象的锁, 用于同步方法或同步块，将锁对象出栈
         29: monitorexit
 
         // 无条件跳转到38
@@ -411,10 +411,10 @@ Constant pool:
         // 将栈顶的引用推送到第三个本地变量槽
         33: astore_2
 
-        // 将第二个本地变量槽中的引用推送到栈顶
+        // 将第二个本地变量槽中的引用推送到栈顶，锁对象的备份
         34: aload_1
 
-        // 释放对象的锁, 用于同步方法或同步块
+        // 释放对象的锁, 用于同步方法或同步块，将锁对象出栈
         35: monitorexit
 
         // 将第三个本地变量槽中的引用推送到栈顶
