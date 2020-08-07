@@ -97,3 +97,7 @@ public class DccConfigDefinitionParser implements BeanDefinitionParser {
 
 具体代码参照https://github.com/dachengxi/DynamicConfigCenter中DynamicConfigCenter-client下的`me.cxis.dcc.spring.DccConfigPlaceholderConfigurer`。
 
+
+
+源码：[https://github.com/dachengxi/DynamicConfigCenter](https://github.com/dachengxi/DynamicConfigCenter)
+

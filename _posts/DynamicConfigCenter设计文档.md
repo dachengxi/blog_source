@@ -16,6 +16,8 @@ tags:
 - DynamicConfigCenter-admin，配置等的管理
 - DynamicConfigCenter-client，应用依赖的客户端包
 
+源码：[https://github.com/dachengxi/DynamicConfigCenter](https://github.com/dachengxi/DynamicConfigCenter)
+
 都是使用draw io画的图，源文件可以导入修改。
 
 # 整体架构

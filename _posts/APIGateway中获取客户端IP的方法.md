@@ -31,3 +31,7 @@ if (StringUtils.isNotEmpty(xff)) {
 ```
 
 但是如果伪造请求链路，客户端请求的时候手动添加X-Forwarded-For的值，就可能不能获取到正确的IP。
+
+
+
+源码：[https://github.com/dachengxi/APIGateway](https://github.com/dachengxi/APIGateway)

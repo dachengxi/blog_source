@@ -99,3 +99,5 @@ public class IPCounter {
 令牌桶算法可以限制请求调用速率，也允许一定程度的突发调用。
 
 可以使用guava包中的令牌桶算法限流器。
+
+源码：https://github.com/dachengxi/APIGateway
