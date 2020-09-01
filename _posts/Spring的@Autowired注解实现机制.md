@@ -1,5 +1,5 @@
 ---
-title: SpringBoot自动配置的原理
+title: Spring的@Autowired注解实现机制
 date: 2019-05-26 13:48:02
 categories: Spring
 tags:
