@@ -35,7 +35,7 @@ Spring提供了JavaConfig配置的方式，可以将原来的xml配置文件使�
 
 们可以定义一个普通类，实现接口ImportSelector，并实现其方法selectImports，之后我们就可以在配置类中使用`@Import({Xxxx.class})`将自定义类导入，这样我们会把selectImports方法中返回的所有的类注册到容器中。
 
-# @Import的实现
+# @Import的实现原理
 
 Spring容器初始化的时候有一步invokeBeanFactoryPostProcessor，这里会调用实现了接口BeanDefinitionRegistryPostProcessor的postProcessBeanDefinitionRegistry方法，ConfigurationClassPostProcessor也实现了此接口，在该方法postProcessBeanDefinitionRegistry中会处理@Configuration相关注解，这里就进行了@Import注解的处理。
 
@@ -63,7 +63,7 @@ else if (checkAssignability(ImportBeanDefinitionRegistrar.class, candidateToChec
     registrar.registerBeanDefinitions(metadata, this.registry);
 }
 else {
-    // 除了上面两种情形之外的@Import注解，当做
+    // 除了上面两种情形之外的@Import注解，其他的当做配置类来处理
     // Candidate class not an ImportSelector or ImportBeanDefinitionRegistrar ->
     // process it as a @Configuration class
     this.importStack.registerImport(metadata,
@@ -75,3 +75,30 @@ else {
 ...
 ```
 
+# ImportSelector的实现类简介
+
+基于Spring 3.2.18.RELEASE源码版本
+
+## AsyncConfigurationSelector
+
+AsyncConfigurationSelector在@EnableAsync中被导入，根据@EnableAsync注解的mode属性来决定要导入哪个AbstractAsyncConfiguration的具体实现类。
+
+## CachingConfigurationSelector
+
+根据@EnableCaching的mode属性来决定要导入哪个AbstractCachingConfiguration的具体实现类
+
+## TransactionManagementConfigurationSelector
+
+根据@EnableTransactionManagement注解的mode属性来确定要导入哪个AbstractTransactionManagementConfiguration的具体实现类
+
+# ImportBeanDefinitionRegistrar的实现类简介
+
+基于Spring 3.2.18.RELEASE源码版本
+
+## AspectJAutoProxyRegistrar
+
+在@EnableAspectJAutoProxy注解中使用，用来注册AnnotationAwareAspectJAutoProxyCreator到容器中，如果指定使用proxyTargetClass，则强制使用proxyTargetClass。
+
+## AutoProxyRegistrar
+
+注册自动代理创建器到容器中
